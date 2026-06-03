@@ -19,11 +19,15 @@ The main workflow is centered on three folders:
 
 ### 1) Setup
 
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then from the repo root:
+
 ```bash
-python3 -m venv .venv
+uv venv
 source .venv/bin/activate
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
+
+`uv venv` creates a `.venv` using Python 3.12 (see `.python-version`).
 
 Create `.env` in the repository root:
 
@@ -47,36 +51,7 @@ python src/main.py experiments/configs/bg2500-big_noncomm.yaml
 
 ## Documentation
 
-Generate browsable docs (narrative pages + auto API reference from docstrings):
-
-```bash
-pip install -r requirements-docs.txt
-mkdocs serve
-```
-
-Then open `http://127.0.0.1:8000`.
-
-Build static docs:
-
-```bash
-mkdocs build --strict
-```
-
-### Publish to GitHub Pages
-
-Published site (after CI runs on `main`): **https://absera.github.io/swarm-robotics/**
-
-One-time repository setup:
-
-1. Open **Settings → Pages** on GitHub.
-2. Under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
-
-CI workflow: [`.github/workflows/docs.yml`](.github/workflows/docs.yml)
-
-- Runs on pushes to `main` that touch docs-related paths (`docs/`, `mkdocs.yml`, `src/`, `experiments/`, etc.).
-- You can also trigger it manually: **Actions → Deploy documentation → Run workflow**.
-
-Merge your docs branch into `main` and push; the workflow deploys the `site/` artifact automatically.
+Published site: **https://abserayihunie.com/llm-swarm-environmental-perception/**
 
 ## Reproduce Core Experiment Results
 
