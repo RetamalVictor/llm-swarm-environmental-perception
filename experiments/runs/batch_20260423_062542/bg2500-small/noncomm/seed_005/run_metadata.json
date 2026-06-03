@@ -1,0 +1,23 @@
+{
+  "run_id": "bg2500-small_noncomm_seed005",
+  "variation": "bg2500-small",
+  "mode": "noncomm",
+  "seed": 5,
+  "status": "success",
+  "returncode": 0,
+  "duration_sec": 215.229112,
+  "config_path": "/Users/absera/Capstone/swarm-robotics/experiments/configs/bg2500-small_noncomm.yaml",
+  "resolved_config_path": "/Users/absera/Capstone/swarm-robotics/experiments/runs/batch_20260423_062542/bg2500-small/noncomm/seed_005/config_resolved.yaml",
+  "command": [
+    "/Users/absera/Capstone/swarm-robotics/.venv/bin/python",
+    "/Users/absera/Capstone/swarm-robotics/src/main.py",
+    "/Users/absera/Capstone/swarm-robotics/experiments/runs/batch_20260423_062542/bg2500-small/noncomm/seed_005/config_resolved.yaml"
+  ],
+  "started_at_utc": "2026-04-23T06:37:15.615686+00:00",
+  "finished_at_utc": "2026-04-23T06:40:50.844798+00:00",
+  "log_path": "/Users/absera/Capstone/swarm-robotics/experiments/runs/batch_20260423_062542/bg2500-small/noncomm/seed_005/run.log",
+  "error": "",
+  "robots_json_paths": [
+    "/Users/absera/Capstone/swarm-robotics/experiments/runs/batch_20260423_062542/bg2500-small/noncomm/seed_005/bg2500_small_noncomm_seed005_2026-04-23_09-37-17/robots.json"
+  ]
+}

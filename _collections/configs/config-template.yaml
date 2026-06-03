@@ -1,0 +1,50 @@
+config:
+  name: "experiment_name" # Run label used in output folder names and experiment tracking.
+
+simulation:
+  run_length: 25 # Number of capture epochs per run (used for progression length on plots).
+  headless: false # True = no UI window, False = show simulation window.
+  save_photo_frames: false # Save one full-scene PNG per capture epoch when True.
+  save_robot_crops: false # Save each robot's cropped camera image per capture epoch under run_output/robot_crops/.
+  width: 2500 # Simulation world width in pixels.
+  height: 2500 # Simulation world height in pixels.
+  fps: 60 # Simulation ticks per second.
+  num_of_robots: 9 # Number of robots spawned in the environment.
+  background_image: "background-2500.png" # Background image file under src/assets.
+  robot_image: "robot.png" # Robot sprite image file under src/assets.
+  seed: 0 # Random seed for reproducible robot placement/motion.
+
+robot:
+  linear_speed: 2.3 # Forward movement speed per simulation tick.
+  angular_velocity: 5 # Turn velocity used for edge-avoidance corrections.
+  coverage_side: 200 # Side length of the robot camera capture square.
+  neighbor_radius: 200 # Proximity radius used to detect neighboring robots.
+  capture_frequency: 5 # Seconds between photo captures; PHOTO_TICKS = capture_frequency * fps.
+  communication: true # Enables/disables peer-to-peer message exchange entirely.
+  self_learning: true # True = photo prompt includes existing memory, False = image-only summary.
+  max_facts_per_observation: 40 # Hard cap for stored merged fact sentences.
+  photo_timeout_ticks: 600 # Drop stalled photo API request after this many ticks.
+  inbox_timeout_ticks: 300 # Release stalled inbox synthesis request after this many ticks.
+  max_inbox_merges_per_epoch: 1 # Per-robot merge budget each capture epoch (set 1/2/3/4+ as needed).
+  inbox_merge_after_budget: "drop" # Behavior once budget is reached: "drop", "deterministic", or "llm".
+  use_llm_inbox_synthesis: true # True = LLM inbox synthesis, False = deterministic merge_observations.
+  save_comm_merge_history: false # Save only successful peer merges to run_output/communication_merges.jsonl.
+  empty_observation: "first run. no observations so far" # Initial placeholder memory before first photo result.
+
+llm:
+  model_name: "gemini-2.5-flash-lite" # LLM model used for photo analysis and inbox text synthesis.
+  thread_workers: 9 # Worker threads handling queued API requests.
+  temperature: 0.05 # Sampling temperature for generation.
+  max_output_tokens: 220 # Max tokens returned per LLM call.
+  prompts:
+    photo_analysis_self_learning: |
+      # Prompt for photo analysis when self_learning=true.
+      # Available placeholder: {observation}
+      You are a robotic perception module. Update the robot factual log with new visual facts.
+    photo_analysis_no_self_learning: |
+      # Prompt for photo analysis when self_learning=false.
+      You are a robotic perception module. Produce a factual summary of the image.
+    text_synthesis: |
+      # Prompt for inbox merge when use_llm_inbox_synthesis=true.
+      # Available placeholders: {current_observation}, {inbox}
+      Merge the current robot factual log with peer factual log.

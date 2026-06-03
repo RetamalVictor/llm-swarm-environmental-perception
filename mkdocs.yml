@@ -1,0 +1,38 @@
+site_name: Swarm Conversational Agents
+site_description: Documentation for the capstone swarm perception framework
+site_url: https://absera.github.io/swarm-robotics/
+repo_url: https://github.com/absera/swarm-robotics
+repo_name: absera/swarm-robotics
+edit_uri: edit/main/docs/
+theme:
+  name: material
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+            - experiments
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.details
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Methodology: methodology.md
+  - Running Experiments: experiments.md
+  - API Reference:
+      - Runtime (src): reference/src.md
+      - Experiments: reference/experiments.md

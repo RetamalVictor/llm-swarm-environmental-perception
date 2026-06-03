@@ -1,0 +1,1073 @@
+/Users/absera/Capstone/swarm-robotics/.venv/lib/python3.13/site-packages/pygame/pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_stream, resource_exists
+pygame 2.6.1 (SDL 2.28.4, Python 3.13.7)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+2026-04-23 09:25:43,618 [INFO] root: Configuration loaded successfully from /Users/absera/Capstone/swarm-robotics/experiments/runs/batch_20260423_062542/bg2500-big/noncomm/seed_001/config_resolved.yaml
+Starting API manager with 9 threads ...
+## Tasks left: ## Tasks left:   0
+0
+## Tasks left:  0
+## Tasks left: ## Tasks left:  0
+ 0
+## Tasks left: ## Tasks left: ## Tasks left:  0
+ 0
+ 0
+## Tasks left:  0
+2026-04-23 09:25:52,000 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:25:52,122 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:25:52,234 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:25:52,367 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:25:52,513 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:25:52,670 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:25:52,825 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:25:52,967 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:25:53,110 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:25:55,870 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=3494 chars=32
+## Tasks left:  0
+2026-04-23 09:25:55,915 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:25:56,261 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=4259 chars=66
+## Tasks left: 2026-04-23 09:25:56,263 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=3748 chars=32
+## Tasks left:  0
+ 0
+2026-04-23 09:25:56,286 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:25:56,287 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:25:56,364 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=4232 chars=32
+2026-04-23 09:25:56,368 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=3222 chars=32
+## Tasks left: ## Tasks left: 2026-04-23 09:25:56,378 [INFO] __main__: robot 1 recieved photo summary results.
+ 2026-04-23 09:25:56,378 [INFO] __main__: robot 8 recieved photo summary results.
+0 0
+
+2026-04-23 09:25:56,583 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=4346 chars=87
+## Tasks left:  0
+2026-04-23 09:25:56,611 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:25:56,664 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=3696 chars=215
+## Tasks left:  0
+2026-04-23 09:25:56,691 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:25:56,753 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=4081 chars=59
+## Tasks left:  0
+2026-04-23 09:25:56,778 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:25:56,987 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=4160 chars=75
+## Tasks left:  0
+2026-04-23 09:25:57,005 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:01,013 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:01,171 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:01,323 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:01,466 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:01,587 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:01,721 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:01,876 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:02,061 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:02,228 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:03,326 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=2001 chars=120
+## Tasks left: 2026-04-23 09:26:03,354 [INFO] __main__: robot 2 recieved photo summary results.
+ 0
+2026-04-23 09:26:03,610 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=2432 chars=59
+## Tasks left:  0
+2026-04-23 09:26:03,639 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:04,272 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=2392 chars=112
+## Tasks left:  0
+2026-04-23 09:26:04,292 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:04,947 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=3335 chars=64
+## Tasks left:  0
+2026-04-23 09:26:04,963 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:05,064 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=4011 chars=157
+## Tasks left:  0
+2026-04-23 09:26:05,079 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:05,301 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=3833 chars=144
+## Tasks left:  0
+2026-04-23 09:26:05,314 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:05,804 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=4081 chars=59
+## Tasks left:  0
+2026-04-23 09:26:05,833 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:06,048 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=3818 chars=69
+## Tasks left:  0
+2026-04-23 09:26:06,064 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:07,649 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=5587 chars=56
+## Tasks left:  0
+2026-04-23 09:26:07,661 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:09,357 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:09,509 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:09,650 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:09,776 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:09,903 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:10,068 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:10,217 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:10,282 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=925 chars=224
+## Tasks left:  0
+2026-04-23 09:26:10,363 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:10,496 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:10,506 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:10,809 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1299 chars=92
+## Tasks left:  0
+2026-04-23 09:26:10,824 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:11,037 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1386 chars=191
+## Tasks left:  0
+2026-04-23 09:26:11,050 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:11,335 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1263 chars=105
+## Tasks left:  0
+2026-04-23 09:26:11,366 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:11,503 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1726 chars=152
+## Tasks left:  0
+2026-04-23 09:26:11,532 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:12,214 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1974 chars=160
+## Tasks left:  0
+2026-04-23 09:26:12,239 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:12,547 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=2184 chars=64
+2026-04-23 09:26:12,550 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=2621 chars=97
+## Tasks left:  0
+## Tasks left:  0
+2026-04-23 09:26:12,574 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:12,575 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:12,649 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=2153 chars=69
+## Tasks left:  0
+2026-04-23 09:26:12,671 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:16,939 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:17,097 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:17,255 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:17,384 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:17,520 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:17,639 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:17,766 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:17,890 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:18,008 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:18,713 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1615 chars=166
+## Tasks left:  0
+2026-04-23 09:26:18,731 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:19,010 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=2070 chars=159
+## Tasks left:  0
+2026-04-23 09:26:19,021 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:19,243 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1603 chars=59
+## Tasks left:  0
+2026-04-23 09:26:19,263 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:19,287 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1902 chars=62
+## Tasks left:  0
+2026-04-23 09:26:19,313 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:19,343 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1550 chars=36
+## Tasks left:  0
+2026-04-23 09:26:19,355 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:19,737 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=2216 chars=150
+## Tasks left:  0
+2026-04-23 09:26:19,798 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:19,916 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1907 chars=69
+## Tasks left:  0
+2026-04-23 09:26:19,933 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:20,016 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=2125 chars=69
+## Tasks left:  0
+2026-04-23 09:26:20,030 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:20,731 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=3475 chars=129
+## Tasks left:  0
+2026-04-23 09:26:20,749 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:24,336 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:24,487 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:24,635 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:24,774 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:24,901 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:25,032 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:25,164 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:25,310 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:25,345 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1009 chars=61
+## Tasks left:  0
+2026-04-23 09:26:25,444 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:25,453 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:26,170 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1681 chars=128
+## Tasks left:  0
+2026-04-23 09:26:26,175 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:26,285 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1510 chars=32
+## Tasks left:  0
+2026-04-23 09:26:26,293 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:26,481 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1579 chars=70
+## Tasks left:  0
+2026-04-23 09:26:26,495 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:26,587 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1542 chars=105
+## Tasks left:  0
+2026-04-23 09:26:26,603 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:26,698 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=2061 chars=129
+## Tasks left:  0
+2026-04-23 09:26:26,708 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:27,021 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1846 chars=160
+## Tasks left:  0
+2026-04-23 09:26:27,040 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:27,609 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=2154 chars=109
+## Tasks left:  0
+2026-04-23 09:26:27,627 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:27,663 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=2327 chars=48
+## Tasks left:  0
+2026-04-23 09:26:27,689 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:31,662 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:31,815 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:31,978 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:32,109 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:32,234 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:32,352 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:32,472 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:32,618 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:32,746 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:33,125 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1462 chars=234
+## Tasks left:  0
+2026-04-23 09:26:33,136 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:33,569 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1753 chars=203
+## Tasks left:  0
+2026-04-23 09:26:33,574 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:33,607 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1627 chars=129
+## Tasks left:  0
+2026-04-23 09:26:33,622 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:33,681 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1446 chars=32
+## Tasks left:  0
+2026-04-23 09:26:33,690 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:33,781 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1671 chars=89
+## Tasks left:  0
+2026-04-23 09:26:33,790 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:33,904 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1551 chars=179
+## Tasks left:  0
+2026-04-23 09:26:33,907 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:33,953 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1330 chars=27
+## Tasks left:  0
+2026-04-23 09:26:33,961 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:34,208 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1733 chars=350
+## Tasks left:  0
+2026-04-23 09:26:34,219 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:34,327 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1580 chars=142
+## Tasks left:  0
+2026-04-23 09:26:34,341 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:38,542 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:38,670 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:38,801 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:38,929 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:39,067 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:39,179 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:39,294 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:39,411 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:39,550 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:39,941 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1398 chars=61
+## Tasks left:  0
+2026-04-23 09:26:39,955 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:40,384 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1582 chars=258
+## Tasks left:  0
+2026-04-23 09:26:40,399 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:40,459 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1391 chars=254
+## Tasks left:  0
+2026-04-23 09:26:40,481 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:40,572 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1392 chars=320
+## Tasks left: 2026-04-23 09:26:40,574 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1903 chars=258
+ ## Tasks left:  00
+
+2026-04-23 09:26:40,580 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:40,582 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:40,692 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1762 chars=519
+## Tasks left:  0
+2026-04-23 09:26:40,703 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:40,852 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1440 chars=27
+## Tasks left:  0
+2026-04-23 09:26:40,864 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:40,937 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1642 chars=20
+## Tasks left:  0
+2026-04-23 09:26:40,954 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:41,215 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1664 chars=61
+## Tasks left:  0
+2026-04-23 09:26:41,234 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:45,345 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:45,474 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:45,600 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:45,717 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:45,832 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:45,952 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:46,066 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:46,177 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:46,294 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:46,496 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1149 chars=39
+## Tasks left: 2026-04-23 09:26:46,503 [INFO] __main__: robot 0 recieved photo summary results.
+ 0
+2026-04-23 09:26:47,197 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1722 chars=151
+## Tasks left:  0
+2026-04-23 09:26:47,201 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:47,205 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1605 chars=258
+## Tasks left:  0
+2026-04-23 09:26:47,224 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:47,393 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1327 chars=20
+## Tasks left:  0
+2026-04-23 09:26:47,405 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:47,500 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1322 chars=27
+2026-04-23 09:26:47,507 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1555 chars=320
+## Tasks left:  0
+## Tasks left:  0
+2026-04-23 09:26:47,524 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:47,524 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:47,895 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=2062 chars=254
+## Tasks left:  0
+2026-04-23 09:26:47,902 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:47,926 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1631 chars=171
+## Tasks left:  0
+2026-04-23 09:26:47,930 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=2212 chars=32
+## Tasks left:  0
+2026-04-23 09:26:47,941 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:47,942 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:52,107 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:52,255 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:52,386 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:52,522 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:52,654 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:52,779 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:52,907 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:53,024 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:53,147 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:53,662 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1553 chars=32
+## Tasks left:  0
+2026-04-23 09:26:53,679 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:26:53,715 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1458 chars=32
+## Tasks left:  0
+2026-04-23 09:26:53,728 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:26:54,134 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1746 chars=232
+## Tasks left:  0
+2026-04-23 09:26:54,156 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:26:54,431 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1908 chars=552
+## Tasks left:  0
+2026-04-23 09:26:54,440 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:26:54,540 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1760 chars=104
+## Tasks left:  0
+2026-04-23 09:26:54,557 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:26:54,614 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1707 chars=350
+## Tasks left:  0
+2026-04-23 09:26:54,619 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:26:54,739 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1709 chars=27
+## Tasks left:  0
+2026-04-23 09:26:54,744 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=2089 chars=242
+## Tasks left:  0
+2026-04-23 09:26:54,753 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:26:54,753 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:26:55,204 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=2056 chars=171
+## Tasks left:  0
+2026-04-23 09:26:55,224 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:26:58,738 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:26:58,860 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:26:58,978 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:26:59,099 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:26:59,221 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:26:59,341 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:26:59,464 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:26:59,583 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:26:59,704 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:26:59,939 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1200 chars=49
+## Tasks left:  0
+2026-04-23 09:26:59,964 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:00,527 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1548 chars=129
+## Tasks left:  0
+2026-04-23 09:27:00,530 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:00,530 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1670 chars=45
+## Tasks left:  0
+2026-04-23 09:27:00,549 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:00,826 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1605 chars=73
+## Tasks left:  0
+2026-04-23 09:27:00,834 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:00,900 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1800 chars=586
+## Tasks left:  0
+2026-04-23 09:27:00,931 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:01,075 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1609 chars=117
+## Tasks left:  0
+2026-04-23 09:27:01,097 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:01,196 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1854 chars=81
+## Tasks left:  0
+2026-04-23 09:27:01,200 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:01,243 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1660 chars=215
+## Tasks left:  0
+2026-04-23 09:27:01,248 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:01,378 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1672 chars=171
+## Tasks left:  0
+2026-04-23 09:27:01,385 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:05,321 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:05,449 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:05,577 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:05,709 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:05,851 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:05,978 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:06,109 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:06,275 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:06,428 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:07,166 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1587 chars=491
+## Tasks left: 2026-04-23 09:27:07,177 [INFO] __main__: robot 2 recieved photo summary results.
+ 0
+2026-04-23 09:27:07,352 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1374 chars=59
+## Tasks left:  0
+2026-04-23 09:27:07,352 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1501 chars=242
+## Tasks left:  0
+2026-04-23 09:27:07,365 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:07,365 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:07,609 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1331 chars=59
+## Tasks left:  0
+2026-04-23 09:27:07,617 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:07,648 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=2326 chars=32
+## Tasks left:  0
+2026-04-23 09:27:07,651 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:08,137 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=2687 chars=32
+## Tasks left:  0
+2026-04-23 09:27:08,148 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:08,367 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1938 chars=160
+## Tasks left:  0
+2026-04-23 09:27:08,380 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:08,619 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=2909 chars=585
+## Tasks left:  0
+2026-04-23 09:27:08,638 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:10,728 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=4618 chars=36
+## Tasks left:  0
+2026-04-23 09:27:10,747 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:11,984 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:12,124 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:12,259 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:12,415 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:12,540 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:12,660 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:12,794 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:12,925 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:13,072 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=947 chars=32
+## Tasks left:  0
+2026-04-23 09:27:13,165 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:13,182 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:13,199 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1212 chars=37
+## Tasks left:  0
+2026-04-23 09:27:13,222 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:13,669 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1254 chars=32
+## Tasks left:  0
+2026-04-23 09:27:13,690 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:14,004 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1209 chars=468
+2026-04-23 09:27:14,010 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1437 chars=36
+## Tasks left: ## Tasks left:  0
+ 0
+2026-04-23 09:27:14,027 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:14,028 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:14,060 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1800 chars=125
+## Tasks left:  0
+2026-04-23 09:27:14,069 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:14,412 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1486 chars=87
+## Tasks left:  0
+2026-04-23 09:27:14,422 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:14,423 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1762 chars=59
+## Tasks left:  0
+2026-04-23 09:27:14,442 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:18,683 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=5514 chars=323
+## Tasks left:  0
+2026-04-23 09:27:18,786 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:18,913 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:19,065 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:19,188 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:19,316 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:19,452 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:19,615 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:19,629 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=842 chars=28
+## Tasks left:  0
+2026-04-23 09:27:19,753 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:19,892 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:19,914 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:20,169 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1255 chars=57
+## Tasks left:  2026-04-23 09:27:20,170 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1105 chars=491
+## Tasks left:  00
+
+2026-04-23 09:27:20,185 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:20,186 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:20,647 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1330 chars=36
+## Tasks left:  0
+2026-04-23 09:27:20,648 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1032 chars=489
+## Tasks left:  0
+2026-04-23 09:27:20,658 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:20,659 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:20,767 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1315 chars=88
+## Tasks left:  0
+2026-04-23 09:27:20,781 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:21,070 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1316 chars=128
+## Tasks left:  0
+2026-04-23 09:27:21,090 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:21,126 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1234 chars=165
+## Tasks left:  0
+2026-04-23 09:27:21,143 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:21,574 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=2382 chars=32
+## Tasks left:  0
+2026-04-23 09:27:21,599 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:25,453 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:25,590 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:25,720 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:25,846 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:25,973 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:26,102 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:26,232 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:26,366 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:26,499 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:26,874 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1420 chars=37
+## Tasks left:  0
+2026-04-23 09:27:26,876 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1156 chars=107
+2026-04-23 09:27:26,878 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1287 chars=98
+## Tasks left:  0
+## Tasks left:  0
+2026-04-23 09:27:26,886 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:26,887 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:26,887 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:26,925 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1078 chars=618
+## Tasks left:  0
+2026-04-23 09:27:26,936 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:27,105 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1002 chars=59
+## Tasks left:  0
+2026-04-23 09:27:27,121 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:27,207 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1232 chars=36
+## Tasks left:  0
+2026-04-23 09:27:27,219 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:27,403 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1036 chars=137
+## Tasks left:  0
+2026-04-23 09:27:27,416 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:27,589 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1089 chars=72
+## Tasks left:  0
+2026-04-23 09:27:27,600 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:27,730 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1497 chars=101
+## Tasks left:  0
+2026-04-23 09:27:27,754 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:31,957 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:32,094 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:32,231 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:32,368 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:32,513 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:32,653 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:32,781 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:32,905 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:33,053 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:33,155 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1195 chars=61
+## Tasks left:  0
+2026-04-23 09:27:33,158 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=926 chars=45
+2026-04-23 09:27:33,167 [INFO] __main__: robot 0 recieved photo summary results.
+## Tasks left: 2026-04-23 09:27:33,168 [INFO] __main__: robot 2 recieved photo summary results.
+ 0
+2026-04-23 09:27:33,577 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1064 chars=36
+## Tasks left:  0
+2026-04-23 09:27:33,590 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:33,681 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1586 chars=66
+## Tasks left:  0
+2026-04-23 09:27:33,683 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1314 chars=132
+## Tasks left:  0
+2026-04-23 09:27:33,694 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:33,694 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:34,034 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1253 chars=20
+## Tasks left:  0
+2026-04-23 09:27:34,043 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:34,164 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1258 chars=72
+## Tasks left:  0
+2026-04-23 09:27:34,176 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:34,213 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1159 chars=67
+## Tasks left:  0
+2026-04-23 09:27:34,216 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1562 chars=568
+## Tasks left:  0
+2026-04-23 09:27:34,229 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:34,230 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:38,625 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:38,785 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:38,923 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:39,063 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:39,214 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:39,353 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:39,492 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:39,663 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:39,881 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=957 chars=58
+## Tasks left: 2026-04-23 09:27:39,891 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1101 chars=63
+## Tasks left:  0
+ 0
+2026-04-23 09:27:39,892 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:39,922 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:39,922 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:40,133 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1069 chars=718
+## Tasks left:  0
+2026-04-23 09:27:40,150 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:40,257 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1631 chars=747
+## Tasks left:  0
+2026-04-23 09:27:40,270 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:40,541 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1326 chars=45
+## Tasks left:  0
+2026-04-23 09:27:40,556 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:40,614 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1120 chars=20
+## Tasks left:  0
+2026-04-23 09:27:40,616 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1262 chars=568
+## Tasks left:  0
+2026-04-23 09:27:40,629 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:40,629 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:40,722 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1058 chars=89
+## Tasks left:  0
+2026-04-23 09:27:40,734 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:41,088 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1191 chars=140
+## Tasks left:  0
+2026-04-23 09:27:41,105 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:45,531 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:45,687 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:45,847 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:45,998 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:46,147 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:46,303 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:46,499 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:46,692 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:46,726 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1037 chars=227
+## Tasks left:  0
+2026-04-23 09:27:46,757 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1224 chars=166
+## Tasks left:  0
+2026-04-23 09:27:46,932 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:46,963 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:46,964 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:47,008 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1159 chars=229
+## Tasks left:  0
+2026-04-23 09:27:47,023 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:47,143 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=996 chars=66
+## Tasks left:  0
+2026-04-23 09:27:47,175 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:47,242 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=742 chars=20
+## Tasks left:  0
+2026-04-23 09:27:47,257 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:47,365 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1366 chars=749
+## Tasks left:  0
+2026-04-23 09:27:47,372 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:47,615 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1312 chars=568
+## Tasks left:  0
+2026-04-23 09:27:47,621 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:47,807 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1114 chars=27
+## Tasks left:  0
+2026-04-23 09:27:47,816 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:48,277 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1344 chars=73
+## Tasks left:  0
+2026-04-23 09:27:48,295 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:52,592 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:52,846 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:53,017 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:27:53,178 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:27:53,349 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:27:53,512 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:27:53,694 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:27:53,855 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:27:53,999 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:27:54,007 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1159 chars=32
+## Tasks left:  2026-04-23 09:27:54,012 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=995 chars=43
+## Tasks left:  0
+0
+2026-04-23 09:27:54,026 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:27:54,028 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:27:54,260 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1667 chars=94
+## Tasks left:  0
+2026-04-23 09:27:54,270 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:27:54,428 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1077 chars=136
+## Tasks left:  0
+2026-04-23 09:27:54,444 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:27:54,630 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1451 chars=32
+## Tasks left:  0
+2026-04-23 09:27:54,643 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:27:54,948 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1253 chars=135
+## Tasks left:  0
+2026-04-23 09:27:54,957 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1445 chars=566
+## Tasks left:  0
+2026-04-23 09:27:54,973 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:27:54,974 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:27:55,044 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1184 chars=61
+## Tasks left:  0
+2026-04-23 09:27:55,059 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:27:55,597 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1597 chars=603
+## Tasks left:  0
+2026-04-23 09:27:55,610 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:27:59,614 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:27:59,776 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:27:59,925 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:00,097 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:00,257 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:00,422 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:00,642 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=864 chars=32
+## Tasks left:  0
+2026-04-23 09:28:00,644 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1028 chars=94
+## Tasks left:  0
+2026-04-23 09:28:00,648 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:00,815 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:01,023 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:01,075 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:01,075 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:01,124 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1025 chars=145
+## Tasks left: 2026-04-23 09:28:01,136 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1210 chars=147
+ ## Tasks left:  0
+0
+2026-04-23 09:28:01,150 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:01,150 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:01,545 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1120 chars=96
+## Tasks left:  0
+2026-04-23 09:28:01,560 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:01,858 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1601 chars=164
+## Tasks left:  0
+2026-04-23 09:28:01,878 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:02,207 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1559 chars=100
+## Tasks left:  0
+2026-04-23 09:28:02,222 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:02,801 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1774 chars=529
+## Tasks left:  0
+2026-04-23 09:28:02,808 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:03,402 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=2585 chars=45
+## Tasks left:  0
+2026-04-23 09:28:03,410 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:06,640 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:06,796 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:06,949 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:07,121 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:07,294 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:07,490 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:07,608 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=967 chars=116
+## Tasks left:  0
+2026-04-23 09:28:07,703 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:07,867 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:07,917 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1119 chars=32
+## Tasks left:  0
+2026-04-23 09:28:08,019 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:08,037 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:08,039 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:08,212 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=917 chars=36
+## Tasks left:  0
+2026-04-23 09:28:08,251 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:08,333 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=841 chars=59
+## Tasks left:  0
+2026-04-23 09:28:08,368 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:08,635 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1512 chars=32
+## Tasks left:  0
+2026-04-23 09:28:08,669 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:08,931 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1064 chars=59
+## Tasks left:  0
+2026-04-23 09:28:08,941 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:09,371 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1351 chars=75
+## Tasks left:  0
+2026-04-23 09:28:09,397 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:12,088 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=5137 chars=814
+## Tasks left:  0
+2026-04-23 09:28:12,093 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:13,644 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:13,784 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:13,926 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:14,066 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:14,211 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:14,349 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:14,403 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=6698 chars=104
+## Tasks left:  0
+2026-04-23 09:28:14,490 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:14,628 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:14,829 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1045 chars=32
+## Tasks left:  0
+2026-04-23 09:28:14,837 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:14,855 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:15,005 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1360 chars=94
+## Tasks left:  0
+2026-04-23 09:28:15,013 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:15,570 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1219 chars=207
+## Tasks left:  0
+2026-04-23 09:28:15,590 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:15,655 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1588 chars=996
+## Tasks left:  0
+2026-04-23 09:28:15,666 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:15,769 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1140 chars=34
+## Tasks left:  0
+2026-04-23 09:28:15,790 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:16,574 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1737 chars=73
+## Tasks left:  0
+2026-04-23 09:28:16,587 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:19,065 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=4574 chars=193
+## Tasks left:  0
+2026-04-23 09:28:19,083 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:19,444 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=5231 chars=40
+## Tasks left:  0
+2026-04-23 09:28:19,465 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:19,540 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=5613 chars=58
+## Tasks left:  0
+2026-04-23 09:28:19,548 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:20,687 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:20,852 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:21,010 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:21,153 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:21,378 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:21,556 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:21,724 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:21,889 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:22,065 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:22,142 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1382 chars=74
+## Tasks left:  0
+2026-04-23 09:28:22,155 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:22,599 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=874 chars=20
+## Tasks left: 2026-04-23 09:28:22,600 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1743 chars=73
+ 0## Tasks left:  0
+
+2026-04-23 09:28:22,614 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:22,614 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:22,650 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1639 chars=814
+## Tasks left:  0
+2026-04-23 09:28:22,670 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:22,723 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1165 chars=59
+## Tasks left:  0
+2026-04-23 09:28:22,742 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:23,100 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1946 chars=996
+## Tasks left:  0
+2026-04-23 09:28:23,125 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:23,207 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1317 chars=110
+## Tasks left:  0
+2026-04-23 09:28:23,221 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:23,241 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1862 chars=137
+## Tasks left:  0
+2026-04-23 09:28:23,259 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:24,205 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=2136 chars=747
+## Tasks left:  0
+2026-04-23 09:28:24,231 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:27,681 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:27,836 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:27,980 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:28,120 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:28,319 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:28,517 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:28,556 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=874 chars=32
+## Tasks left:  0
+2026-04-23 09:28:28,676 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:28,833 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:28,978 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1141 chars=99
+## Tasks left: 2026-04-23 09:28:28,978 [INFO] __main__: robot 8 submitted photo request.
+ 0
+2026-04-23 09:28:28,992 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:28,993 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:29,340 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1219 chars=32
+## Tasks left:  0
+2026-04-23 09:28:29,344 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:29,419 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1094 chars=156
+## Tasks left:  0
+2026-04-23 09:28:29,435 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:29,531 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1551 chars=125
+## Tasks left:  0
+2026-04-23 09:28:29,545 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:29,762 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=926 chars=27
+## Tasks left:  02026-04-23 09:28:29,764 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1246 chars=193
+## Tasks left:  
+0
+2026-04-23 09:28:29,776 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:29,777 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:29,883 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=903 chars=73
+## Tasks left:  0
+2026-04-23 09:28:29,889 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:30,014 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1336 chars=863
+## Tasks left:  0
+2026-04-23 09:28:30,027 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:34,495 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:34,634 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:34,774 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:34,909 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:35,079 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:35,291 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:35,468 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:35,568 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=794 chars=70
+## Tasks left:  0
+2026-04-23 09:28:35,578 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1082 chars=32
+## Tasks left:  0
+2026-04-23 09:28:35,642 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:35,829 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:35,848 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:35,848 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:35,892 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1258 chars=273
+## Tasks left:  0
+2026-04-23 09:28:35,906 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:35,912 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1002 chars=45
+## Tasks left:  0
+2026-04-23 09:28:35,923 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:36,286 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1205 chars=120
+## Tasks left:  0
+2026-04-23 09:28:36,298 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:36,357 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1061 chars=27
+## Tasks left:  0
+2026-04-23 09:28:36,389 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:36,475 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1006 chars=20
+## Tasks left:  0
+2026-04-23 09:28:36,492 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:36,721 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1078 chars=27
+## Tasks left:  0
+2026-04-23 09:28:36,738 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:37,323 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1493 chars=747
+## Tasks left:  0
+2026-04-23 09:28:37,340 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:41,392 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:41,546 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:41,691 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:41,829 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:41,978 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:42,221 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:42,433 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:42,496 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1103 chars=32
+## Tasks left:  0
+2026-04-23 09:28:42,675 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:42,764 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1218 chars=308
+## Tasks left:  0
+2026-04-23 09:28:42,835 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1144 chars=58
+## Tasks left:  0
+2026-04-23 09:28:42,885 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:42,909 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:42,910 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:42,911 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:42,931 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1101 chars=89
+## Tasks left:  0
+2026-04-23 09:28:42,980 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:43,415 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1436 chars=45
+## Tasks left:  0
+2026-04-23 09:28:43,441 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:43,563 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1341 chars=835
+## Tasks left:  0
+2026-04-23 09:28:43,574 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:43,600 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1165 chars=20
+## Tasks left:  0
+2026-04-23 09:28:43,614 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:43,943 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1266 chars=89
+## Tasks left:  0
+2026-04-23 09:28:43,963 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:44,066 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1168 chars=73
+## Tasks left:  0
+2026-04-23 09:28:44,077 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:48,566 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:48,715 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:48,860 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:49,116 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:49,314 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:49,537 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:49,643 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1076 chars=32
+## Tasks left:  0
+2026-04-23 09:28:49,647 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=932 chars=32
+## Tasks left:  0
+2026-04-23 09:28:49,758 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:49,951 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1089 chars=94
+## Tasks left:  0
+2026-04-23 09:28:49,972 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:50,189 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:50,218 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:50,218 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:50,218 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:50,249 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1133 chars=30
+## Tasks left:  0
+2026-04-23 09:28:50,269 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:50,363 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1048 chars=36
+## Tasks left:  0
+2026-04-23 09:28:50,369 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:50,724 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=966 chars=20
+## Tasks left: 2026-04-23 09:28:50,726 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1188 chars=863
+## Tasks left:  0
+ 2026-04-23 09:28:50,734 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:50,735 [INFO] __main__: robot 6 recieved photo summary results.
+0
+2026-04-23 09:28:51,495 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1522 chars=985
+## Tasks left:  0
+2026-04-23 09:28:51,513 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:51,683 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1492 chars=147
+## Tasks left:  0
+2026-04-23 09:28:51,693 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:28:55,615 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:28:55,781 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:28:55,941 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:28:56,115 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:28:56,286 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:28:56,459 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:28:56,627 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:28:56,805 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:28:56,876 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1095 chars=32
+## Tasks left:  0
+2026-04-23 09:28:56,978 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:28:57,007 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:28:57,126 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1510 chars=32
+## Tasks left:  0
+2026-04-23 09:28:57,138 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:28:57,288 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1001 chars=36
+## Tasks left:  0
+2026-04-23 09:28:57,296 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:28:57,306 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1190 chars=32
+## Tasks left:  0
+2026-04-23 09:28:57,317 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:28:57,678 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=1736 chars=950
+## Tasks left:  0
+2026-04-23 09:28:57,692 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:28:57,787 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=981 chars=27
+## Tasks left:  0
+2026-04-23 09:28:57,799 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:28:57,842 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=1215 chars=20
+## Tasks left:  0
+2026-04-23 09:28:57,848 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1389 chars=934
+## Tasks left:  0
+2026-04-23 09:28:57,859 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:28:57,860 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:28:58,333 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1354 chars=75
+## Tasks left:  0
+2026-04-23 09:28:58,340 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:29:02,493 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:29:02,634 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:29:02,787 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:29:03,052 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:29:03,268 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:29:03,498 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:29:03,657 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1163 chars=32
+## Tasks left:  0
+2026-04-23 09:29:03,720 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:29:03,936 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:29:04,144 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:29:04,172 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:29:05,053 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=1554 chars=47
+## Tasks left:  0
+2026-04-23 09:29:05,144 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1876 chars=36
+## Tasks left:  0
+2026-04-23 09:29:05,157 [INFO] __main__: robot 4 recieved photo summary results.
+2026-04-23 09:29:05,158 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:29:05,241 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=1096 chars=148
+## Tasks left:  0
+2026-04-23 09:29:05,266 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:29:05,400 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1463 chars=105
+## Tasks left:  0
+2026-04-23 09:29:05,408 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:29:05,517 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=2883 chars=115
+## Tasks left:  0
+2026-04-23 09:29:05,529 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:29:06,592 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=3798 chars=48
+## Tasks left:  0
+2026-04-23 09:29:06,619 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:29:07,280 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=4222 chars=32
+## Tasks left:  0
+2026-04-23 09:29:07,301 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:29:08,024 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=4303 chars=20
+## Tasks left:  0
+2026-04-23 09:29:08,037 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:29:09,826 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:29:10,062 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:29:10,292 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:29:10,506 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:29:10,699 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:29:10,924 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:29:11,137 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:29:11,353 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:29:11,516 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1453 chars=30
+## Tasks left:  0
+2026-04-23 09:29:11,526 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:29:11,558 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:29:11,704 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1196 chars=32
+## Tasks left:  0
+2026-04-23 09:29:11,726 [INFO] __main__: robot 3 recieved photo summary results.
+2026-04-23 09:29:12,514 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=2688 chars=75
+## Tasks left:  0
+2026-04-23 09:29:12,539 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:29:12,894 [INFO] llm.llm_api_gemini: api request completed: id=7_photo type=photo latency_ms=1539 chars=136
+## Tasks left:  0
+2026-04-23 09:29:12,911 [INFO] __main__: robot 7 recieved photo summary results.
+2026-04-23 09:29:13,749 [INFO] llm.llm_api_gemini: api request completed: id=8_photo type=photo latency_ms=2222 chars=829
+## Tasks left:  0
+2026-04-23 09:29:13,765 [INFO] __main__: robot 8 recieved photo summary results.
+2026-04-23 09:29:13,990 [INFO] llm.llm_api_gemini: api request completed: id=6_photo type=photo latency_ms=2852 chars=20
+## Tasks left:  0
+2026-04-23 09:29:13,999 [INFO] __main__: robot 6 recieved photo summary results.
+2026-04-23 09:29:15,013 [INFO] llm.llm_api_gemini: api request completed: id=2_photo type=photo latency_ms=4720 chars=954
+## Tasks left:  0
+2026-04-23 09:29:15,026 [INFO] __main__: robot 2 recieved photo summary results.
+2026-04-23 09:29:15,677 [INFO] llm.llm_api_gemini: api request completed: id=5_photo type=photo latency_ms=4752 chars=31
+## Tasks left:  0
+2026-04-23 09:29:15,688 [INFO] __main__: robot 5 recieved photo summary results.
+2026-04-23 09:29:17,108 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=6409 chars=36
+## Tasks left:  0
+2026-04-23 09:29:17,117 [INFO] __main__: robot 0 submitted photo request.
+2026-04-23 09:29:17,304 [INFO] __main__: robot 1 submitted photo request.
+2026-04-23 09:29:17,472 [INFO] __main__: robot 2 submitted photo request.
+2026-04-23 09:29:17,665 [INFO] __main__: robot 3 submitted photo request.
+2026-04-23 09:29:17,845 [INFO] __main__: robot 4 submitted photo request.
+2026-04-23 09:29:18,089 [INFO] __main__: robot 5 submitted photo request.
+2026-04-23 09:29:18,279 [INFO] __main__: robot 6 submitted photo request.
+2026-04-23 09:29:18,375 [INFO] llm.llm_api_gemini: api request completed: id=1_photo type=photo latency_ms=1071 chars=32
+## Tasks left:  0
+2026-04-23 09:29:18,447 [INFO] llm.llm_api_gemini: api request completed: id=0_photo type=photo latency_ms=1329 chars=89
+## Tasks left:  0
+2026-04-23 09:29:18,466 [INFO] __main__: robot 7 submitted photo request.
+2026-04-23 09:29:18,648 [INFO] __main__: robot 8 submitted photo request.
+2026-04-23 09:29:18,675 [INFO] __main__: robot 0 recieved photo summary results.
+2026-04-23 09:29:18,676 [INFO] __main__: robot 1 recieved photo summary results.
+2026-04-23 09:29:18,855 [INFO] llm.llm_api_gemini: api request completed: id=3_photo type=photo latency_ms=1189 chars=32
+2026-04-23 09:29:18,866 [INFO] llm.llm_api_gemini: api request completed: id=4_photo type=photo latency_ms=1021 chars=36

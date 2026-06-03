@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments & secrets
+.venv/
+venv/
+.env
+
+# OS & editors
+.DS_Store
+.idea/
+.vscode/
+
+# Runtime / simulation outputs
+logs/
+src/logs/
+site/
