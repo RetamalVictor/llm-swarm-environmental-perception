@@ -130,6 +130,7 @@ class ObservationLogger:
 
         screen = pg.display.get_surface()
         if screen is None:
+            # In headless mode there may be no display surface to snapshot.
             return
 
         self.frames_directory.mkdir(parents=True, exist_ok=True)

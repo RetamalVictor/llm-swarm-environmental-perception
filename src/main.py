@@ -13,6 +13,7 @@ from observation_logger import ObservationLogger
 from actuator import Actuator
 from llm.llm_api_gemini import API_MANAGER
 import random
+import os
 from utils.paths import ASSETS_DIR, LOG_DIR, OUTPUT_DIR
 from utils.config import SwarmConfig
 import sys
@@ -57,6 +58,7 @@ RUN_OUTPUT_DIR = getattr(config.simulation, "output_dir", OUTPUT_DIR)
 SAVE_PHOTO_FRAMES = getattr(config.simulation, "save_photo_frames", False)
 SAVE_ROBOT_CROPS = getattr(config.simulation, "save_robot_crops", False)
 SAVE_COMM_MERGE_HISTORY = getattr(config.robot, "save_comm_merge_history", False)
+HEADLESS = bool(getattr(config.simulation, "headless", False))
 
 ## CONSTANTS LLM
 NUM_WORKERS = config.llm.thread_workers
@@ -498,7 +500,9 @@ class EnvironmentSimulation(Simulation):
         if background_path:
             try:
                 size = self.config.window.as_tuple()
-                background_image = pg.image.load(background_path).convert()
+                background_image = pg.image.load(background_path)
+                if pg.display.get_surface() is not None:
+                    background_image = background_image.convert()
                 self._background = pg.transform.scale(background_image, size)
             except pg.error as e:
                 print(f"Warning: Could not load background image: {e}")
@@ -511,6 +515,58 @@ class EnvironmentSimulation(Simulation):
             linear_speed, angular_velocity = agent.get_velocities() # type: ignore
             agent.actuator.update(linear_speed, angular_velocity) # type: ignore
 
+
+class EnvironmentHeadlessSimulation(HeadlessSimulation):
+    """Headless variant with the same shared services and update logic."""
+
+    def __init__(
+        self,
+        vi_config: Config | None = None,
+        background_path: Any = None,
+        external_config: Any = None,
+    ) -> None:
+        super().__init__(vi_config)
+
+        self.shared.api_manager = API_MANAGER(NUM_WORKERS, external_config) # type: ignore
+        self.shared.observation_logger = ObservationLogger( # type: ignore
+            on=LOG_RESULTS,
+            empty_observation=EMPTY_OBSERVATION,
+            base_dir=RUN_OUTPUT_DIR,
+            external_config=external_config,
+            save_robot_crops=SAVE_ROBOT_CROPS,
+            save_comm_merge_history=SAVE_COMM_MERGE_HISTORY,
+        )
+        self.shared.photo_frame_capture_state = {"tick": None, "robot_ids": set(), "saved": False} # type: ignore
+        self.shared.api_manager.start() # type: ignore
+
+        if background_path:
+            try:
+                size = self.config.window.as_tuple()
+                background_image = pg.image.load(background_path)
+                if pg.display.get_surface() is not None:
+                    background_image = background_image.convert()
+                self._background = pg.transform.scale(background_image, size)
+            except pg.error as e:
+                print(f"Warning: Could not load background image: {e}")
+
+    def _HeadlessSimulation__update_positions(self) -> None:
+        """Update all agent positions using each robot's actuator command."""
+        for sprite in self._agents.sprites():
+            agent: Agent = sprite  # type: ignore
+
+            linear_speed, angular_velocity = agent.get_velocities() # type: ignore
+            agent.actuator.update(linear_speed, angular_velocity) # type: ignore
+
+
+def configure_runtime_mode() -> None:
+    """Configure SDL for true no-window operation before simulation startup."""
+    if not HEADLESS:
+        return
+    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+    os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
+    logger.info("running simulation in headless mode (SDL dummy drivers)")
+
+
 vi_config = Config(
     window=Window(WIDTH,HEIGHT), 
     movement_speed=1.0, 
@@ -521,6 +577,8 @@ vi_config = Config(
     )
 
 if __name__ == "__main__":
-    sim = EnvironmentSimulation(background_path=ASSETS_DIR / BACKGROUND_IMAGE, vi_config=vi_config, external_config=config)
+    configure_runtime_mode()
+    sim_cls = EnvironmentHeadlessSimulation if HEADLESS else EnvironmentSimulation
+    sim = sim_cls(background_path=ASSETS_DIR / BACKGROUND_IMAGE, vi_config=vi_config, external_config=config)
     sim.batch_spawn_agents(NUM_OF_ROBOTS, Robot, images=[str(ASSETS_DIR / ROBOT_IMAGE)])
     sim.run()
