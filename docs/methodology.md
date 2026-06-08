@@ -32,6 +32,8 @@ flowchart LR
 - Inbox merges are budgeted per capture epoch by `max_inbox_merges_per_epoch`.
 - After budget is reached, behavior is controlled by `inbox_merge_after_budget` (`drop`, `deterministic`, or `llm`).
 - A deterministic text merge helper (`merge_observations`) always runs before final storage to de-duplicate and cap facts.
+- `simulation.headless: true` runs without a visible UI window while keeping robot crop capture and photo LLM submission active.
+- `simulation.save_photo_frames` depends on an active pygame display surface; `simulation.save_robot_crops` works in both headless and non-headless runs.
 
 ## Experiment Configuration Knobs
 
