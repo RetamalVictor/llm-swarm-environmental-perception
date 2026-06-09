@@ -8,7 +8,7 @@ simulation:
   save_robot_crops: false # Save each robot's cropped camera image per capture epoch under run_output/robot_crops/ (works in headless and non-headless modes).
   width: 2500 # Simulation world width in pixels.
   height: 2500 # Simulation world height in pixels.
-  fps: 60 # Simulation ticks per second.
+  fps: 60 # Ticks per real second in headed and headless modes (set 0 for uncapped headless speed).
   num_of_robots: 9 # Number of robots spawned in the environment.
   background_image: "background-2500.png" # Background image file under src/assets.
   robot_image: "robot.png" # Robot sprite image file under src/assets.
@@ -19,12 +19,12 @@ robot:
   angular_velocity: 5 # Turn velocity used for edge-avoidance corrections.
   coverage_side: 200 # Side length of the robot camera capture square.
   neighbor_radius: 200 # Proximity radius used to detect neighboring robots.
-  capture_frequency: 5 # Seconds between photo captures; PHOTO_TICKS = capture_frequency * fps.
+  capture_frequency: 5 # Real seconds between photo captures when fps > 0; PHOTO_TICKS = capture_frequency * fps.
   communication: true # Enables/disables peer-to-peer message exchange entirely.
   self_learning: true # True = photo prompt includes existing memory, False = image-only summary.
   max_facts_per_observation: 40 # Hard cap for stored merged fact sentences.
-  photo_timeout_ticks: 600 # Drop stalled photo API request after this many ticks.
-  inbox_timeout_ticks: 300 # Release stalled inbox synthesis request after this many ticks.
+  photo_timeout_ticks: 600 # Drop stalled photo API request after this many ticks (~seconds * fps).
+  inbox_timeout_ticks: 300 # Release stalled inbox synthesis request after this many ticks (~seconds * fps).
   max_inbox_merges_per_epoch: 1 # Per-robot merge budget each capture epoch (set 1/2/3/4+ as needed).
   inbox_merge_after_budget: "drop" # Behavior once budget is reached: "drop", "deterministic", or "llm".
   use_llm_inbox_synthesis: true # True = LLM inbox synthesis, False = deterministic merge_observations.
@@ -32,10 +32,13 @@ robot:
   empty_observation: "first run. no observations so far" # Initial placeholder memory before first photo result.
 
 llm:
-  model_name: "gemini-2.5-flash-lite" # LLM model used for photo analysis and inbox text synthesis.
+  provider: "gemini" # Backend: gemini, openai, or ollama.
+  model_name: "gemini-2.5-flash-lite" # Model name passed to the selected provider.
   thread_workers: 9 # Worker threads handling queued API requests.
   temperature: 0.05 # Sampling temperature for generation.
   max_output_tokens: 220 # Max tokens returned per LLM call.
+  base_url: null # Optional. Ollama default: http://localhost:11434. OpenAI-compatible proxy URL if set.
+  api_key_env: "GOOGLE_API_KEY" # Env var for API key (OPENAI_API_KEY for openai; unused for ollama).
   prompts:
     photo_analysis_self_learning: |
       # Prompt for photo analysis when self_learning=true.

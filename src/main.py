@@ -11,9 +11,10 @@ import pygame as pg
 from camera_sensor import CameraSensor
 from observation_logger import ObservationLogger
 from actuator import Actuator
-from llm.llm_api_gemini import API_MANAGER
+from llm.factory import create_api_manager
 import random
 import os
+import time
 from utils.paths import ASSETS_DIR, LOG_DIR, OUTPUT_DIR
 from utils.config import SwarmConfig
 import sys
@@ -22,9 +23,9 @@ from collections import deque
 from typing import Any
 ## SETUP LOGS
 from utils.logging_config import setup_logging
-import logging
+from utils.sim_log import comm_log, config_log, llm_log, log_run_banner, sim_log
+
 setup_logging()
-logger = logging.getLogger(__name__)
 
 if len(sys.argv) > 1:
     config = SwarmConfig(sys.argv[1]).load_config()
@@ -63,10 +64,11 @@ HEADLESS = bool(getattr(config.simulation, "headless", False))
 ## CONSTANTS LLM
 NUM_WORKERS = config.llm.thread_workers
 
-PHOTO_TICKS = CAPTURE_FREQUENCY * FPS
+PHOTO_TICKS = int(CAPTURE_FREQUENCY * FPS)
 MAX_FACTS_PER_OBSERVATION = getattr(config.robot, "max_facts_per_observation", 40)
 PHOTO_TIMEOUT_TICKS = getattr(config.robot, "photo_timeout_ticks", PHOTO_TICKS * 2)
 INBOX_TIMEOUT_TICKS = getattr(config.robot, "inbox_timeout_ticks", PHOTO_TICKS)
+SIM_DURATION = RUN_LENGTH * PHOTO_TICKS
 MAX_INBOX_MERGES_PER_EPOCH = max(0, int(getattr(config.robot, "max_inbox_merges_per_epoch", 1)))
 INBOX_MERGE_AFTER_BUDGET = str(getattr(config.robot, "inbox_merge_after_budget", "drop")).strip().lower()
 random.seed(SEED)
@@ -227,23 +229,32 @@ class Robot(Agent):
         incoming_payload = (message, message_tick, sender_id)
         if not self.inbox_queue:
             self.inbox_queue.append(incoming_payload)
-            logger.info(
-                f"robot {self.id} accepted message from robot {sender_id} at tick {message_tick}"
+            comm_log.debug(
+                "message accepted │ robot=%s from=%s tick=%s",
+                self.id,
+                sender_id,
+                message_tick,
             )
             return
 
         _, existing_tick, existing_sender_id = self.inbox_queue[0]
         if message_tick > existing_tick:
             self.inbox_queue[0] = incoming_payload
-            logger.info(
-                f"robot {self.id} replaced pending message from robot {existing_sender_id} "
-                f"(tick {existing_tick}) with newer message from robot {sender_id} "
-                f"(tick {message_tick})"
+            comm_log.debug(
+                "message replaced │ robot=%s from=%s→%s tick=%s→%s",
+                self.id,
+                existing_sender_id,
+                sender_id,
+                existing_tick,
+                message_tick,
             )
         else:
-            logger.info(
-                f"robot {self.id} ignored older/stale message from robot {sender_id} "
-                f"(tick {message_tick}); pending tick is {existing_tick}"
+            comm_log.debug(
+                "message ignored (stale) │ robot=%s from=%s tick=%s pending_tick=%s",
+                self.id,
+                sender_id,
+                message_tick,
+                existing_tick,
             )
 
     def exchange_with_neighbors(self) -> None:
@@ -256,8 +267,11 @@ class Robot(Agent):
                 self.tick_count,
                 int(self.id),
             )
-            logger.info(
-                f"robot {self.id} sent message to robot {neighbor.id} at tick {self.tick_count}"
+            comm_log.debug(
+                "message sent │ robot=%s to=%s tick=%s",
+                self.id,
+                neighbor.id,
+                self.tick_count,
             )
 
     def update(self) -> None:
@@ -280,7 +294,7 @@ class Robot(Agent):
         else:
             self.sensor.show_outline()
 
-        # take a photo and send to LLM every ~x seconds [non blocking]
+        # take a photo every capture_frequency seconds (real time when fps > 0)
         self.photo_tick_counter += 1
         if self.photo_tick_counter >= PHOTO_TICKS:
             # state variables
@@ -310,7 +324,6 @@ class Robot(Agent):
                 cropped_image=image,
             )
             self.llm.submit_photo_request(self.id, image, self.current_observation, SELF_LEARNING)
-            logger.info(f"robot {self.id} submitted photo request.")
             self.PHOTO_RESULT_PENDING = True
             self.photo_pending_since_tick = self.tick_count
             self.observation_logger.log_progress_snapshot(
@@ -342,9 +355,11 @@ class Robot(Agent):
                     inbox_policy="within_budget",
                 )
                 self.inbox_merges_this_epoch += 1
-                logger.info(
-                    f"robot {self.id} merged inbox without synthesis from robot "
-                    f"{incoming_sender_id} (tick {incoming_tick})."
+                comm_log.info(
+                    "inbox merged (deterministic) │ robot=%s from=%s tick=%s",
+                    self.id,
+                    incoming_sender_id,
+                    incoming_tick,
                 )
             else:
                 self.llm.submit_inbox_request(self.id, self.current_observation, next_inbox)
@@ -354,15 +369,18 @@ class Robot(Agent):
                 self.pending_inbox_sender_tick = incoming_tick
                 self.pending_inbox_policy = "within_budget"
                 self.inbox_merges_this_epoch += 1
-                logger.info(
-                    f"robot {self.id} submitted inbox synthesis request from robot "
-                    f"{incoming_sender_id} (tick {incoming_tick})."
+                llm_log.info(
+                    "inbox synthesis queued │ robot=%s from=%s tick=%s",
+                    self.id,
+                    incoming_sender_id,
+                    incoming_tick,
                 )
         elif self.inbox_queue and not self.INBOX_PROCESS_PENDING and not inbox_budget_available:
             if INBOX_MERGE_AFTER_BUDGET == "drop":
-                logger.info(
-                    f"robot {self.id} skipped inbox merge (epoch budget reached: "
-                    f"{MAX_INBOX_MERGES_PER_EPOCH}, policy=drop)."
+                comm_log.debug(
+                    "inbox skipped (budget) │ robot=%s policy=drop budget=%s",
+                    self.id,
+                    MAX_INBOX_MERGES_PER_EPOCH,
                 )
             elif INBOX_MERGE_AFTER_BUDGET == "deterministic":
                 next_inbox, incoming_tick, incoming_sender_id = self.inbox_queue.popleft()
@@ -380,9 +398,11 @@ class Robot(Agent):
                     merge_method="deterministic",
                     inbox_policy="deterministic_after_budget",
                 )
-                logger.info(
-                    f"robot {self.id} merged inbox deterministically after budget from robot "
-                    f"{incoming_sender_id} (tick {incoming_tick})."
+                comm_log.info(
+                    "inbox merged after budget │ robot=%s from=%s tick=%s",
+                    self.id,
+                    incoming_sender_id,
+                    incoming_tick,
                 )
             elif INBOX_MERGE_AFTER_BUDGET == "llm":
                 next_inbox, incoming_tick, incoming_sender_id = self.inbox_queue.popleft()
@@ -392,14 +412,17 @@ class Robot(Agent):
                 self.pending_inbox_sender_id = incoming_sender_id
                 self.pending_inbox_sender_tick = incoming_tick
                 self.pending_inbox_policy = "llm_after_budget"
-                logger.info(
-                    f"robot {self.id} submitted inbox synthesis after budget from robot "
-                    f"{incoming_sender_id} (tick {incoming_tick})."
+                llm_log.info(
+                    "inbox synthesis after budget │ robot=%s from=%s tick=%s",
+                    self.id,
+                    incoming_sender_id,
+                    incoming_tick,
                 )
             else:
-                logger.warning(
-                    f"robot {self.id} invalid inbox_merge_after_budget='{INBOX_MERGE_AFTER_BUDGET}'. "
-                    "Using fallback policy=drop."
+                sim_log.warning(
+                    "invalid inbox_merge_after_budget='%s' │ robot=%s fallback=drop",
+                    INBOX_MERGE_AFTER_BUDGET,
+                    self.id,
                 )
             
         # scan for api result
@@ -413,12 +436,20 @@ class Robot(Agent):
                 )
                 self.PHOTO_RESULT_PENDING = False
                 self.EMPTY_OBSERVATION = False
-                logger.info(f"robot {self.id} recieved photo summary results.")
+                llm_log.info(
+                    "photo result applied │ robot=%s chars=%s",
+                    self.id,
+                    len(self.current_observation),
+                )
                 self.observation_logger.log_observation(self.id, self.current_observation)
             elif self.tick_count - self.photo_pending_since_tick > PHOTO_TIMEOUT_TICKS:
                 # Keep simulation moving if a request stalls.
                 self.PHOTO_RESULT_PENDING = False
-                logger.warning(f"robot {self.id} photo request timeout. Keeping current observation.")
+                llm_log.warning(
+                    "photo timeout │ robot=%s waited_ticks=%s",
+                    self.id,
+                    self.tick_count - self.photo_pending_since_tick,
+                )
         
         # scan for inbox merge results
         if self.INBOX_PROCESS_PENDING and USE_LLM_INBOX_SYNTHESIS:
@@ -439,7 +470,11 @@ class Robot(Agent):
                         merge_method="llm",
                         inbox_policy=self.pending_inbox_policy or "within_budget",
                     )
-                logger.info(f"robot {self.id} recieved inbox synthesis results.")
+                llm_log.info(
+                    "inbox result applied │ robot=%s chars=%s",
+                    self.id,
+                    len(self.current_observation),
+                )
                 self.INBOX_PROCESS_PENDING = False
                 self.pending_inbox_sender_id = None
                 self.pending_inbox_sender_tick = None
@@ -449,7 +484,11 @@ class Robot(Agent):
                 self.pending_inbox_sender_id = None
                 self.pending_inbox_sender_tick = None
                 self.pending_inbox_policy = None
-                logger.warning(f"robot {self.id} inbox synthesis timeout. Releasing pending state.")
+                llm_log.warning(
+                    "inbox timeout │ robot=%s waited_ticks=%s",
+                    self.id,
+                    self.tick_count - self.inbox_pending_since_tick,
+                )
 
     def get_velocities(self) -> tuple[float, float]:
         """Return movement command for correlated random walk with edge avoidance.
@@ -484,7 +523,7 @@ class EnvironmentSimulation(Simulation):
 
         # self.shared is shared across all agents and the simulation
         # since server is single thread, use one thread for now
-        self.shared.api_manager = API_MANAGER(NUM_WORKERS, external_config) # type: ignore 
+        self.shared.api_manager = create_api_manager(NUM_WORKERS, external_config) # type: ignore
         self.shared.observation_logger = ObservationLogger( # type: ignore
             on=LOG_RESULTS,
             empty_observation=EMPTY_OBSERVATION,
@@ -505,7 +544,7 @@ class EnvironmentSimulation(Simulation):
                     background_image = background_image.convert()
                 self._background = pg.transform.scale(background_image, size)
             except pg.error as e:
-                print(f"Warning: Could not load background image: {e}")
+                sim_log.warning("background image not loaded │ %s", e)
         
     def _HeadlessSimulation__update_positions(self) -> None:
         """Update all agent positions using each robot's actuator command."""
@@ -526,8 +565,9 @@ class EnvironmentHeadlessSimulation(HeadlessSimulation):
         external_config: Any = None,
     ) -> None:
         super().__init__(vi_config)
+        self._last_tick_time = time.perf_counter()
 
-        self.shared.api_manager = API_MANAGER(NUM_WORKERS, external_config) # type: ignore
+        self.shared.api_manager = create_api_manager(NUM_WORKERS, external_config) # type: ignore
         self.shared.observation_logger = ObservationLogger( # type: ignore
             on=LOG_RESULTS,
             empty_observation=EMPTY_OBSERVATION,
@@ -547,7 +587,7 @@ class EnvironmentHeadlessSimulation(HeadlessSimulation):
                     background_image = background_image.convert()
                 self._background = pg.transform.scale(background_image, size)
             except pg.error as e:
-                print(f"Warning: Could not load background image: {e}")
+                sim_log.warning("background image not loaded │ %s", e)
 
     def _HeadlessSimulation__update_positions(self) -> None:
         """Update all agent positions using each robot's actuator command."""
@@ -557,6 +597,16 @@ class EnvironmentHeadlessSimulation(HeadlessSimulation):
             linear_speed, angular_velocity = agent.get_velocities() # type: ignore
             agent.actuator.update(linear_speed, angular_velocity) # type: ignore
 
+    def after_update(self) -> None:
+        """Pace ticks to real time using simulation.fps (same semantics as headed mode)."""
+        if FPS <= 0:
+            return
+        tick_interval = 1.0 / FPS
+        elapsed = time.perf_counter() - self._last_tick_time
+        if elapsed < tick_interval:
+            time.sleep(tick_interval - elapsed)
+        self._last_tick_time = time.perf_counter()
+
 
 def configure_runtime_mode() -> None:
     """Configure SDL for true no-window operation before simulation startup."""
@@ -564,21 +614,37 @@ def configure_runtime_mode() -> None:
         return
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
     os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
-    logger.info("running simulation in headless mode (SDL dummy drivers)")
+    config_log.info("SDL drivers │ headless dummy video/audio")
 
 
 vi_config = Config(
-    window=Window(WIDTH,HEIGHT), 
-    movement_speed=1.0, 
+    window=Window(WIDTH,HEIGHT),
+    movement_speed=1.0,
     seed=SEED,
     image_rotation=True,
     radius=NEIGHBOR_RADIUS,
-    duration=RUN_LENGTH*CAPTURE_FREQUENCY*FPS # eg: 15 runs * 15 seconds per run * 60 frames per second
-    )
+    fps_limit=FPS,
+    duration=SIM_DURATION,
+)
 
 if __name__ == "__main__":
     configure_runtime_mode()
+    log_run_banner(
+        config=config,
+        headless=HEADLESS,
+        num_robots=NUM_OF_ROBOTS,
+        fps=FPS,
+        capture_frequency=CAPTURE_FREQUENCY,
+        photo_ticks=PHOTO_TICKS,
+        sim_duration=SIM_DURATION,
+        communication=COMMUNICATION,
+        llm_provider=getattr(config.llm, "provider", "gemini"),
+        llm_model=config.llm.model_name,
+        llm_workers=NUM_WORKERS,
+    )
     sim_cls = EnvironmentHeadlessSimulation if HEADLESS else EnvironmentSimulation
     sim = sim_cls(background_path=ASSETS_DIR / BACKGROUND_IMAGE, vi_config=vi_config, external_config=config)
     sim.batch_spawn_agents(NUM_OF_ROBOTS, Robot, images=[str(ASSETS_DIR / ROBOT_IMAGE)])
+    sim_log.info("simulation started")
     sim.run()
+    sim_log.info("simulation finished")
