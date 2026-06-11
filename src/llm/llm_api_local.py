@@ -1,7 +1,6 @@
-"""Optional local Ollama backend matching the API_MANAGER interface.
+"""Deprecated: use ``llm.provider: ollama`` in config via ``llm.factory.create_api_manager``.
 
-This module is kept as an alternate backend for local-network inference.
-Production simulations import the Gemini backend from ``llm_api_gemini.py``.
+This legacy module is kept for reference only.
 """
 
 import base64

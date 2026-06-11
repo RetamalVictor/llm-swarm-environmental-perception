@@ -5,7 +5,9 @@ from typing import Any
 
 import yaml
 
-from utils.logging_config import logging
+import logging
+
+config_log = logging.getLogger("swarm.config")
 from utils.paths import CONFIG_PATH
 
 
@@ -57,11 +59,11 @@ class SwarmConfig:
         try:
             with open(self.path, "r", encoding="utf-8") as file:
                 config_data = yaml.safe_load(file)
-            logging.info("Configuration loaded successfully from %s", self.path)
+            config_log.info("config loaded │ path=%s", self.path)
             return dict_to_namespace(config_data)
         except FileNotFoundError:
-            logging.error("FATAL: Configuration file not found at %s", self.path)
+            config_log.error("config not found │ path=%s", self.path)
             raise SystemExit(1)
         except yaml.YAMLError as error:
-            logging.error("FATAL: Error parsing configuration file %s: %s", self.path, error)
+            config_log.error("config parse error │ path=%s error=%s", self.path, error)
             raise SystemExit(1)
