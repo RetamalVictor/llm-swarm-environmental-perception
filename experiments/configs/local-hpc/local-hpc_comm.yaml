@@ -1,8 +1,8 @@
 config:
-  name: "example1_vllm" # Run label used in output folder names and experiment tracking.
+  name: "local-hpc_comm" # Run label used in output folder names and experiment tracking.
 
 simulation:
-  run_length: 10 # Number of capture epochs per run (used for progression length on plots).
+  run_length: 30 # Number of capture epochs per run (used for progression length on plots).
   headless: true # True = run without a visible UI window (robot crops are still captured and sent to the LLM).
   save_photo_frames: false # Save one full-scene PNG per capture epoch when True (requires an available pygame display surface).
   save_robot_crops: false # Save each robot's cropped camera image per capture epoch under run_output/robot_crops/ (works in headless and non-headless modes).
@@ -19,7 +19,7 @@ robot:
   angular_velocity: 5 # Turn velocity used for edge-avoidance corrections.
   coverage_side: 200 # Side length of the robot camera capture square.
   neighbor_radius: 200 # Proximity radius used to detect neighboring robots.
-  capture_frequency: 20 # Sim-seconds of movement between capture rounds when fps > 0; PHOTO_TICKS = capture_frequency * fps.
+  capture_frequency: 5 # Sim-seconds of movement between capture rounds when fps > 0; PHOTO_TICKS = capture_frequency * fps.
   wait_for_llm: true # Epoch sync: freeze after each capture batch until all photo and inbox LLM responses return (no timeouts).
   communication: true # Enables/disables peer-to-peer message exchange entirely.
   self_learning: true # True = photo prompt includes existing memory, False = image-only summary.
