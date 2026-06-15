@@ -1,5 +1,5 @@
 config:
-  name: "local-hpc_comm" # Run label used in output folder names and experiment tracking.
+  name: "local-hpc-2500_comm" # Run label used in output folder names and experiment tracking.
 
 simulation:
   run_length: 30 # Number of capture epochs per run (used for progression length on plots).
