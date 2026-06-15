@@ -33,7 +33,7 @@ robot:
   empty_observation: "first run. no observations so far" # Initial placeholder memory before first photo result.
 
 llm:
-  provider: "gemini" # Backend: gemini, openai, or ollama.
+  provider: "gemini" # Backend: gemini, openai, ollama, or vllm.
   model_name: "gemini-2.5-flash-lite" # Model name passed to the selected provider.
   thread_workers: 9 # Worker threads handling queued API requests.
   temperature: 0.05 # Sampling temperature for generation.

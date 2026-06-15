@@ -2,21 +2,26 @@
 
 from typing import Any
 
+from llm.async_manager import AsyncAPI_MANAGER
 from llm.manager import API_MANAGER
 from llm.providers.gemini import GeminiProvider
 from llm.providers.ollama import OllamaProvider
 from llm.providers.openai_provider import OpenAIProvider
+from llm.providers.vllm import VllmProvider
 
 
-def create_api_manager(n_threads: int, config: Any) -> API_MANAGER:
+def create_api_manager(n_threads: int, config: Any) -> API_MANAGER | AsyncAPI_MANAGER:
     """Build an API manager for the LLM provider named in config.
 
+    vLLM uses ``AsyncAPI_MANAGER`` so up to ``thread_workers`` HTTP requests
+    run in parallel without blocking each other.
+
     Args:
-        n_threads: Worker thread count for queued requests.
+        n_threads: Worker / concurrency limit for queued requests.
         config: Loaded swarm configuration namespace.
 
     Returns:
-        Configured ``API_MANAGER`` instance.
+        Configured API manager instance.
 
     Raises:
         ValueError: If ``llm.provider`` names an unknown backend.
@@ -26,14 +31,18 @@ def create_api_manager(n_threads: int, config: Any) -> API_MANAGER:
 
     if provider_name == "gemini":
         provider = GeminiProvider(llm_config)
-    elif provider_name == "openai":
+        return API_MANAGER(n_threads, config, provider)
+    if provider_name == "openai":
         provider = OpenAIProvider(llm_config)
-    elif provider_name == "ollama":
+        return API_MANAGER(n_threads, config, provider)
+    if provider_name == "ollama":
         provider = OllamaProvider(llm_config)
-    else:
-        raise ValueError(
-            f"Unknown llm.provider: {provider_name!r}. "
-            "Supported values: gemini, openai, ollama."
-        )
+        return API_MANAGER(n_threads, config, provider)
+    if provider_name == "vllm":
+        provider = VllmProvider(llm_config)
+        return AsyncAPI_MANAGER(n_threads, config, provider)
 
-    return API_MANAGER(n_threads, config, provider)
+    raise ValueError(
+        f"Unknown llm.provider: {provider_name!r}. "
+        "Supported values: gemini, openai, ollama, vllm."
+    )

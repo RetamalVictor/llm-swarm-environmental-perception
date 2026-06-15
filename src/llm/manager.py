@@ -11,6 +11,24 @@ from llm.providers.base import LLMProvider
 logger = logging.getLogger("swarm.llm")
 
 
+def build_photo_prompt(config: Any, observation: str, self_learning: bool) -> str:
+    """Format the photo-analysis prompt for the current self-learning mode."""
+    if self_learning:
+        prompt_template = config.llm.prompts.photo_analysis_self_learning
+    else:
+        prompt_template = config.llm.prompts.photo_analysis_no_self_learning
+    return prompt_template.format(observation=observation)
+
+
+def build_inbox_prompt(config: Any, current_observation: str, inbox: str) -> str:
+    """Format the inbox-synthesis prompt."""
+    prompt_template = config.llm.prompts.text_synthesis
+    return prompt_template.format(
+        current_observation=current_observation,
+        inbox=inbox,
+    )
+
+
 class API_MANAGER:
     """Threaded request manager for photo analysis and inbox synthesis.
 
@@ -176,19 +194,10 @@ class API_MANAGER:
 
     def call_photo_api(self, image: Any, observation: str, self_learning: bool) -> str:
         """Run multimodal generation for one camera frame."""
-        if self_learning:
-            prompt_template = self.config.llm.prompts.photo_analysis_self_learning
-        else:
-            prompt_template = self.config.llm.prompts.photo_analysis_no_self_learning
-
-        prompt = prompt_template.format(observation=observation)
+        prompt = build_photo_prompt(self.config, observation, self_learning)
         return self.provider.generate_vision(prompt, image)
 
     def call_inbox_api(self, current_observation: str, inbox: str) -> str:
         """Run text synthesis for peer knowledge integration."""
-        prompt_template = self.config.llm.prompts.text_synthesis
-        prompt = prompt_template.format(
-            current_observation=current_observation,
-            inbox=inbox,
-        )
+        prompt = build_inbox_prompt(self.config, current_observation, inbox)
         return self.provider.generate_text(prompt)
