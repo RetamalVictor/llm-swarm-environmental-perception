@@ -19,7 +19,8 @@ robot:
   angular_velocity: 5 # Turn velocity used for edge-avoidance corrections.
   coverage_side: 200 # Side length of the robot camera capture square.
   neighbor_radius: 200 # Proximity radius used to detect neighboring robots.
-  capture_frequency: 5 # Real seconds between photo captures when fps > 0; PHOTO_TICKS = capture_frequency * fps.
+  capture_frequency: 5 # Sim-seconds of movement between capture rounds when fps > 0; PHOTO_TICKS = capture_frequency * fps.
+  wait_for_photo_llm: false # false = async: keep moving on capture schedule, drop stalled photo LLM calls after photo_timeout_ticks. true = epoch sync: freeze the sim after each capture batch until all photo LLM responses return (then start the next capture_frequency window).
   communication: true # Enables/disables peer-to-peer message exchange entirely.
   self_learning: true # True = photo prompt includes existing memory, False = image-only summary.
   max_facts_per_observation: 40 # Hard cap for stored merged fact sentences.
