@@ -151,6 +151,39 @@ def load_batch_rows(batch_csv: Path) -> list[dict[str, str]]:
         return [row for row in reader]
 
 
+def infer_batch_id(batch_csv: Path) -> str:
+    """Resolve experiment batch id from sibling JSON or parent directory name."""
+    batch_dir = batch_csv.resolve().parent
+    summary_json = batch_dir / "batch_summary.json"
+    if summary_json.exists():
+        with summary_json.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+        batch_id = payload.get("batch_id")
+        if batch_id:
+            return str(batch_id)
+    if batch_dir.name.startswith("batch_"):
+        return batch_dir.name
+    return f"{batch_dir.name}_{batch_csv.stem}"
+
+
+def resolve_metrics_output_dir(
+    batch_csv: Path,
+    out_dir: Path,
+    rows: list[dict[str, str]],
+) -> Path:
+    """Return ``out_dir / <batch_id>__<variation(s)>`` for metrics artifacts."""
+    batch_id = infer_batch_id(batch_csv)
+    variations = sorted({row["variation"] for row in rows if row.get("variation")})
+    variation_slug = "_".join(variations) if variations else "unknown_variation"
+
+    if len(variations) == 1:
+        subdir = f"{batch_id}__{variations[0]}"
+    else:
+        subdir = f"{batch_id}__{variation_slug}"
+
+    return out_dir.resolve() / subdir
+
+
 def aggregate_progression(per_snapshot_rows: list[dict]) -> dict[tuple[str, str], dict[str, np.ndarray]]:
     """Aggregate cosine-recall snapshots into mean/std curves per condition."""
     grouped: dict[tuple[str, str], dict[int, list[float]]] = defaultdict(lambda: defaultdict(list))
@@ -356,7 +389,7 @@ def parse_args() -> argparse.Namespace:
         "--out-dir",
         type=Path,
         default=Path("experiments/metrics/outputs"),
-        help="Directory for summary CSVs and dashboard plot.",
+        help="Root output directory. Artifacts are saved in a batch-scoped subfolder.",
     )
     return parser.parse_args()
 
@@ -444,9 +477,14 @@ def main() -> None:
     if not per_snapshot_rows:
         raise RuntimeError("No usable snapshot scores found. Check run output folders.")
 
-    args.out_dir.mkdir(parents=True, exist_ok=True)
-    per_snapshot_csv = args.out_dir / "per_robot_per_snapshot_cosine_metrics.csv"
-    per_run_csv = args.out_dir / "per_run_final_summary_cosine_metrics.csv"
+    metrics_dir = resolve_metrics_output_dir(
+        args.batch_summary_csv.resolve(),
+        args.out_dir,
+        ok_rows,
+    )
+    metrics_dir.mkdir(parents=True, exist_ok=True)
+    per_snapshot_csv = metrics_dir / "per_robot_per_snapshot_cosine_metrics.csv"
+    per_run_csv = metrics_dir / "per_run_final_summary_cosine_metrics.csv"
 
     with per_snapshot_csv.open("w", encoding="utf-8", newline="") as f:
         fieldnames = [
@@ -485,19 +523,20 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(per_run_final_summary)
 
-    dashboard_path = args.out_dir / "cosine_knowledge_progression_dashboard.png"
+    dashboard_path = metrics_dir / "cosine_knowledge_progression_dashboard.png"
     make_progression_plot(
         per_snapshot_rows=per_snapshot_rows,
         out_path=dashboard_path,
         title="Repeated Runs: Communication vs Non-Communication Recall Progression",
     )
-    metrics_grid_path = args.out_dir / "cosine_metrics_progression_grid.png"
+    metrics_grid_path = metrics_dir / "cosine_metrics_progression_grid.png"
     make_metrics_grid_plot(
         per_snapshot_rows=per_snapshot_rows,
         out_path=metrics_grid_path,
         title="Repeated Runs: Recall, Precision, and F1 by Variation and Snapshot",
     )
 
+    print(f"Output directory: {metrics_dir}")
     print(f"Saved: {per_snapshot_csv}")
     print(f"Saved: {per_run_csv}")
     print(f"Saved: {dashboard_path}")
