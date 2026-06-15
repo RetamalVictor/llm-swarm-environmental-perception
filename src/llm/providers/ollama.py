@@ -27,7 +27,7 @@ class OllamaProvider:
             _, buffer = cv2.imencode(".png", image_bgr)
             payload["images"] = [base64.b64encode(buffer).decode("utf-8")]
 
-        response = requests.post(self.endpoint, json=payload, timeout=120)
+        response = requests.post(self.endpoint, json=payload, timeout=600)
         response.raise_for_status()
         return response.json()["response"].strip()
 
