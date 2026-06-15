@@ -26,7 +26,7 @@ def log_run_banner(
     llm_provider: str,
     llm_model: str,
     llm_workers: int,
-    wait_for_photo_llm: bool = False,
+    wait_for_llm: bool = False,
 ) -> None:
     """Print a structured startup summary for the current run."""
     run_name = getattr(config.config, "name", "unnamed")
@@ -57,8 +57,8 @@ def log_run_banner(
     config_log.info("llm model         %s", llm_model)
     config_log.info("llm workers       %s", llm_workers)
     config_log.info(
-        "photo llm sync    %s",
-        "epoch barrier (freeze)" if wait_for_photo_llm else "async (timeout)",
+        "llm sync mode     %s",
+        "epoch barrier (freeze, no timeout)" if wait_for_llm else "async (timeout)",
     )
     if getattr(config.llm, "base_url", None):
         config_log.info("llm base url       %s", config.llm.base_url)

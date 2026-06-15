@@ -20,12 +20,10 @@ robot:
   coverage_side: 200 # Side length of the robot camera capture square.
   neighbor_radius: 200 # Proximity radius used to detect neighboring robots.
   capture_frequency: 20 # Sim-seconds of movement between capture rounds when fps > 0; PHOTO_TICKS = capture_frequency * fps.
-  wait_for_photo_llm: true # false = async: keep moving on capture schedule, drop stalled photo LLM calls after photo_timeout_ticks. true = epoch sync: freeze the sim after each capture batch until all photo LLM responses return (then start the next capture_frequency window).
+  wait_for_llm: true # Epoch sync: freeze after each capture batch until all photo and inbox LLM responses return (no timeouts).
   communication: true # Enables/disables peer-to-peer message exchange entirely.
   self_learning: true # True = photo prompt includes existing memory, False = image-only summary.
   max_facts_per_observation: 40 # Hard cap for stored merged fact sentences.
-  photo_timeout_ticks: 600 # Drop stalled photo API request after this many ticks (~seconds * fps).
-  inbox_timeout_ticks: 300 # Release stalled inbox synthesis request after this many ticks (~seconds * fps).
   max_inbox_merges_per_epoch: 1 # Per-robot merge budget each capture epoch (set 1/2/3/4+ as needed).
   inbox_merge_after_budget: "drop" # Behavior once budget is reached: "drop", "deterministic", or "llm".
   use_llm_inbox_synthesis: true # True = LLM inbox synthesis, False = deterministic merge_observations.

@@ -71,9 +71,9 @@ INBOX_TIMEOUT_TICKS = getattr(config.robot, "inbox_timeout_ticks", PHOTO_TICKS)
 SIM_DURATION = RUN_LENGTH * PHOTO_TICKS
 MAX_INBOX_MERGES_PER_EPOCH = max(0, int(getattr(config.robot, "max_inbox_merges_per_epoch", 1)))
 INBOX_MERGE_AFTER_BUDGET = str(getattr(config.robot, "inbox_merge_after_budget", "drop")).strip().lower()
-WAIT_FOR_PHOTO_LLM = bool(getattr(config.robot, "wait_for_photo_llm", False))
-PHOTO_TIMEOUT_WALL_SECONDS = (
-    PHOTO_TIMEOUT_TICKS / FPS if FPS > 0 else float(PHOTO_TIMEOUT_TICKS)
+WAIT_FOR_LLM = bool(
+    getattr(config.robot, "wait_for_llm", False)
+    or getattr(config.robot, "wait_for_photo_llm", False)
 )
 random.seed(SEED)
 
@@ -164,21 +164,27 @@ def iter_robots(simulation: HeadlessSimulation) -> Any:
         yield sprite
 
 
-def any_robot_photo_pending(simulation: HeadlessSimulation) -> bool:
-    """Return True when any robot is still waiting on a photo LLM response."""
-    return any(robot.PHOTO_RESULT_PENDING for robot in iter_robots(simulation))  # type: ignore[attr-defined]
+def any_robot_llm_pending(simulation: HeadlessSimulation) -> bool:
+    """Return True when any robot is still waiting on an in-flight LLM response."""
+    for robot in iter_robots(simulation):
+        if robot.PHOTO_RESULT_PENDING:  # type: ignore[attr-defined]
+            return True
+        if USE_LLM_INBOX_SYNTHESIS and robot.INBOX_PROCESS_PENDING:  # type: ignore[attr-defined]
+            return True
+    return False
 
 
-def freeze_until_photo_batch_done(simulation: HeadlessSimulation) -> None:
-    """Block between ticks until all in-flight photo LLM requests for this epoch finish."""
-    if not WAIT_FOR_PHOTO_LLM or not any_robot_photo_pending(simulation):
+def freeze_until_llm_batch_done(simulation: HeadlessSimulation) -> None:
+    """Block between ticks until all in-flight LLM requests for this epoch finish."""
+    if not WAIT_FOR_LLM or not any_robot_llm_pending(simulation):
         return
-    sim_log.info("epoch pause │ waiting for photo LLM batch")
-    while any_robot_photo_pending(simulation):
+    sim_log.info("epoch pause │ waiting for LLM batch (photo + inbox)")
+    while any_robot_llm_pending(simulation):
         for robot in iter_robots(simulation):
             robot.poll_photo_result()  # type: ignore[attr-defined]
+            robot.poll_inbox_result()  # type: ignore[attr-defined]
         time.sleep(0.02)
-    sim_log.info("epoch resume │ photo LLM batch complete")
+    sim_log.info("epoch resume │ LLM batch complete")
 
 
 class Robot(Agent):
@@ -234,7 +240,6 @@ class Robot(Agent):
         self.observation_logger = self.shared.observation_logger # type: ignore
         self.PHOTO_RESULT_PENDING = False
         self.photo_pending_since_tick = 0
-        self.photo_pending_since_time = 0.0
         self.capture_epoch = 0
         self.inbox_merges_this_epoch = 0
 
@@ -355,7 +360,6 @@ class Robot(Agent):
             self.llm.submit_photo_request(self.id, image, self.current_observation, SELF_LEARNING)
             self.PHOTO_RESULT_PENDING = True
             self.photo_pending_since_tick = self.tick_count
-            self.photo_pending_since_time = time.perf_counter()
             self.observation_logger.log_progress_snapshot(
                 robot_id=self.id,
                 observation=self.current_observation,
@@ -456,45 +460,7 @@ class Robot(Agent):
                 )
             
         self.poll_photo_result()
-
-        # scan for inbox merge results
-        if self.INBOX_PROCESS_PENDING and USE_LLM_INBOX_SYNTHESIS:
-            inbox_result, data = self.llm.get_result(self.id, request_type="inbox")
-            if inbox_result:
-                self.current_observation = merge_observations(
-                    inbox_result,
-                    self.current_observation,
-                    MAX_FACTS_PER_OBSERVATION,
-                )
-                if self.pending_inbox_sender_id is not None and self.pending_inbox_sender_tick is not None:
-                    self.observation_logger.log_comm_merge(
-                        receiver_robot_id=self.id,
-                        sender_robot_id=self.pending_inbox_sender_id,
-                        sender_tick=self.pending_inbox_sender_tick,
-                        receiver_tick=self.tick_count,
-                        capture_epoch=self.capture_epoch,
-                        merge_method="llm",
-                        inbox_policy=self.pending_inbox_policy or "within_budget",
-                    )
-                llm_log.info(
-                    "inbox result applied │ robot=%s chars=%s",
-                    self.id,
-                    len(self.current_observation),
-                )
-                self.INBOX_PROCESS_PENDING = False
-                self.pending_inbox_sender_id = None
-                self.pending_inbox_sender_tick = None
-                self.pending_inbox_policy = None
-            elif self.tick_count - self.inbox_pending_since_tick > INBOX_TIMEOUT_TICKS:
-                self.INBOX_PROCESS_PENDING = False
-                self.pending_inbox_sender_id = None
-                self.pending_inbox_sender_tick = None
-                self.pending_inbox_policy = None
-                llm_log.warning(
-                    "inbox timeout │ robot=%s waited_ticks=%s",
-                    self.id,
-                    self.tick_count - self.inbox_pending_since_tick,
-                )
+        self.poll_inbox_result()
 
     def poll_photo_result(self) -> None:
         """Apply a completed photo LLM result or clear pending state on timeout."""
@@ -518,30 +484,67 @@ class Robot(Agent):
             self.observation_logger.log_observation(self.id, self.current_observation)
             return
 
-        timed_out = False
-        if WAIT_FOR_PHOTO_LLM:
-            if PHOTO_TIMEOUT_WALL_SECONDS > 0:
-                waited_seconds = time.perf_counter() - self.photo_pending_since_time
-                timed_out = waited_seconds > PHOTO_TIMEOUT_WALL_SECONDS
-        elif self.tick_count - self.photo_pending_since_tick > PHOTO_TIMEOUT_TICKS:
-            timed_out = True
+        if WAIT_FOR_LLM:
+            return
 
-        if not timed_out:
+        if self.tick_count - self.photo_pending_since_tick <= PHOTO_TIMEOUT_TICKS:
             return
 
         self.PHOTO_RESULT_PENDING = False
-        if WAIT_FOR_PHOTO_LLM:
-            llm_log.warning(
-                "photo timeout (epoch sync) │ robot=%s waited_seconds=%.1f",
-                self.id,
-                time.perf_counter() - self.photo_pending_since_time,
+        llm_log.warning(
+            "photo timeout │ robot=%s waited_ticks=%s",
+            self.id,
+            self.tick_count - self.photo_pending_since_tick,
+        )
+
+    def poll_inbox_result(self) -> None:
+        """Apply a completed inbox LLM result or clear pending state on timeout."""
+        if not self.INBOX_PROCESS_PENDING or not USE_LLM_INBOX_SYNTHESIS:
+            return
+
+        inbox_result, _data = self.llm.get_result(self.id, request_type="inbox")
+        if inbox_result:
+            self.current_observation = merge_observations(
+                inbox_result,
+                self.current_observation,
+                MAX_FACTS_PER_OBSERVATION,
             )
-        else:
-            llm_log.warning(
-                "photo timeout │ robot=%s waited_ticks=%s",
+            if self.pending_inbox_sender_id is not None and self.pending_inbox_sender_tick is not None:
+                self.observation_logger.log_comm_merge(
+                    receiver_robot_id=self.id,
+                    sender_robot_id=self.pending_inbox_sender_id,
+                    sender_tick=self.pending_inbox_sender_tick,
+                    receiver_tick=self.tick_count,
+                    capture_epoch=self.capture_epoch,
+                    merge_method="llm",
+                    inbox_policy=self.pending_inbox_policy or "within_budget",
+                )
+            llm_log.info(
+                "inbox result applied │ robot=%s chars=%s",
                 self.id,
-                self.tick_count - self.photo_pending_since_tick,
+                len(self.current_observation),
             )
+            self.INBOX_PROCESS_PENDING = False
+            self.pending_inbox_sender_id = None
+            self.pending_inbox_sender_tick = None
+            self.pending_inbox_policy = None
+            return
+
+        if WAIT_FOR_LLM:
+            return
+
+        if self.tick_count - self.inbox_pending_since_tick <= INBOX_TIMEOUT_TICKS:
+            return
+
+        self.INBOX_PROCESS_PENDING = False
+        self.pending_inbox_sender_id = None
+        self.pending_inbox_sender_tick = None
+        self.pending_inbox_policy = None
+        llm_log.warning(
+            "inbox timeout │ robot=%s waited_ticks=%s",
+            self.id,
+            self.tick_count - self.inbox_pending_since_tick,
+        )
 
     def get_velocities(self) -> tuple[float, float]:
         """Return movement command for correlated random walk with edge avoidance.
@@ -610,7 +613,7 @@ class EnvironmentSimulation(Simulation):
     def after_update(self) -> None:
         """Render frame, then freeze between epochs when photo LLM sync is enabled."""
         super().after_update()
-        freeze_until_photo_batch_done(self)
+        freeze_until_llm_batch_done(self)
 
 
 class EnvironmentHeadlessSimulation(HeadlessSimulation):
@@ -657,7 +660,7 @@ class EnvironmentHeadlessSimulation(HeadlessSimulation):
 
     def after_update(self) -> None:
         """Freeze for photo LLM batch completion, then pace ticks to simulation.fps."""
-        freeze_until_photo_batch_done(self)
+        freeze_until_llm_batch_done(self)
         if FPS <= 0:
             return
         tick_interval = 1.0 / FPS
@@ -700,7 +703,7 @@ if __name__ == "__main__":
         llm_provider=getattr(config.llm, "provider", "gemini"),
         llm_model=config.llm.model_name,
         llm_workers=NUM_WORKERS,
-        wait_for_photo_llm=WAIT_FOR_PHOTO_LLM,
+        wait_for_llm=WAIT_FOR_LLM,
     )
     sim_cls = EnvironmentHeadlessSimulation if HEADLESS else EnvironmentSimulation
     sim = sim_cls(background_path=ASSETS_DIR / BACKGROUND_IMAGE, vi_config=vi_config, external_config=config)
