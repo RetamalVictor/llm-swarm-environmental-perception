@@ -5,6 +5,8 @@ This documentation covers the implementation in `src/` and `experiments/` for th
 ## What This Site Contains
 
 - Architecture and data flow from simulation to evaluation metrics
+- **[Configuration reference](configuration.md)** — every YAML key explained
+- **[LLM provider guide](llm-providers.md)** — setup tutorials for Gemini, OpenAI, Ollama, and vLLM
 - Methodology mapping between paper concepts and concrete code modules
 - Experiment orchestration and metrics pipeline usage
 - Auto-generated API reference from in-code docstrings
@@ -13,6 +15,8 @@ This documentation covers the implementation in `src/` and `experiments/` for th
 
 - Project README: `README.md`
 - Main runtime entrypoint: `src/main.py`
+- LLM factory: `src/llm/factory.py`
+- Example configs: `examples/example1_*.yaml`
 - Batch runner: `experiments/run_experiments.py`
 - Metrics script: `experiments/metrics/plot_cosine_experiment_averages.py`
 - Paper PDF: [ABSERA-YIHUNIE-CAPSTONE-SPRING-2026.pdf](file:///Users/absera/Downloads/ABSERA-YIHUNIE-CAPSTONE-SPRING-2026.pdf)

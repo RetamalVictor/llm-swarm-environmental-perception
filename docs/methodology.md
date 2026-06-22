@@ -7,8 +7,8 @@ This page maps Section 3 of the capstone paper to the implementation.
 | Paper term | Code implementation |
 |---|---|
 | Knowledge Base (`T_s`) | `Robot.current_observation` in `src/main.py` |
-| Interpretation (individual learning) | `submit_photo_request()` + `call_photo_api()` in `src/llm/llm_api_gemini.py` |
-| Integration (social learning) | `submit_inbox_request()` / `call_inbox_api()` or deterministic fallback merge in `src/main.py` |
+| Interpretation (individual learning) | `API_MANAGER.submit_photo_request()` → `provider.generate_vision()` via `src/llm/manager.py` |
+| Integration (social learning) | `submit_inbox_request()` → `provider.generate_text()` or deterministic fallback merge in `src/main.py` |
 | Camera patch (`R x R`) | `CameraSensor.take_photo()` with `coverage_side` in `src/camera_sensor.py` |
 | Communication range (`C`) | `neighbor_radius` and proximity lookup in `Robot.exchange_with_neighbors()` |
 | Snapshot history | `ObservationLogger.log_progress_snapshot()` in `src/observation_logger.py` |
@@ -37,9 +37,12 @@ flowchart LR
 
 ## Experiment Configuration Knobs
 
-Primary keys live in the YAML files under `experiments/configs/`:
+Primary keys live in the YAML files under `experiments/configs/` and `examples/`. See the full [Configuration Reference](configuration.md) for defaults and behavior.
+
+Key experiment levers:
 
 - `simulation.run_length`, `simulation.fps`, `simulation.num_of_robots`
 - `robot.coverage_side`, `robot.neighbor_radius`, `robot.capture_frequency`
 - `robot.communication`, `robot.self_learning`, `robot.use_llm_inbox_synthesis`
-- `llm.model_name`, `llm.temperature`, `llm.max_output_tokens`
+- `robot.wait_for_llm`, `robot.photo_timeout_ticks`, `robot.inbox_timeout_ticks`
+- `llm.provider`, `llm.model_name`, `llm.thread_workers`, `llm.temperature`, `llm.max_output_tokens`

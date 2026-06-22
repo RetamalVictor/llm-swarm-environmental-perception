@@ -25,7 +25,8 @@ flowchart LR
   - `src/camera_sensor.py` crops a local view and renders sensing overlays.
   - `src/actuator.py` applies linear and angular commands to robot pose.
 - **Knowledge and logging**
-  - `src/llm/factory.py` and `src/llm/manager.py` handle threaded LLM requests via pluggable providers (`gemini`, `openai`, `ollama`).
+  - `src/llm/factory.py` selects a provider from `llm.provider` and returns either `API_MANAGER` (threaded) or `AsyncAPI_MANAGER` (vLLM).
+  - `src/llm/providers/` implements `gemini`, `openai`, `ollama`, and `vllm` backends behind a shared `LLMProvider` protocol.
   - `src/observation_logger.py` stores `robots.json` snapshots and optional artifacts.
 - **Experiment and evaluation**
   - `experiments/run_experiments.py` executes comm/noncomm config pairs across seeds.
@@ -45,3 +46,29 @@ flowchart TB
   plotMetrics --> metricsCsv[metrics CSV files]
   plotMetrics --> metricsPng[dashboard PNG files]
 ```
+
+## LLM Layer
+
+```mermaid
+flowchart TB
+  robot[Robot.submit_photo_request / submit_inbox_request]
+  robot --> mgr{llm.provider}
+  mgr -->|gemini openai ollama| threaded[API_MANAGER thread pool]
+  mgr -->|vllm| asyncMgr[AsyncAPI_MANAGER asyncio]
+  threaded --> prov[providers/gemini openai ollama]
+  asyncMgr --> vllm[providers/vllm]
+  prov --> ext[External API]
+  vllm --> ext
+  threaded --> poll[get_result per tick]
+  asyncMgr --> poll
+```
+
+| Module | Responsibility |
+|--------|----------------|
+| `llm/factory.py` | `create_api_manager(n_threads, config)` — wires provider to manager |
+| `llm/manager.py` | Threaded queue, stale-request dropping, prompt building |
+| `llm/async_manager.py` | Non-blocking parallel HTTP for vLLM |
+| `llm/providers/base.py` | `generate_text` / `generate_vision` protocol |
+| `llm/providers/*.py` | Provider-specific API clients |
+
+See [LLM Providers](llm-providers.md) for per-backend setup and [Configuration](configuration.md) for all YAML keys.

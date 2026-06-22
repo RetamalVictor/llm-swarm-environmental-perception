@@ -2,6 +2,8 @@
 
 This project compares communication-enabled and non-communication swarms using repeated seeds and evaluates semantic quality against a ground-truth fact set.
 
+Configs live under `experiments/configs/`. Set `llm.provider` per run (see [LLM Providers](llm-providers.md) and [Configuration](configuration.md)).
+
 ## 1) Run Batched Simulations
 
 Use `experiments/run_experiments.py`:

@@ -29,15 +29,25 @@ uv pip install -r requirements.txt
 
 `uv venv` creates a `.venv` using Python 3.12 (see `.python-version`).
 
-Create `.env` in the repository root:
+Create `.env` in the repository root (provider-dependent):
 
 ```bash
-GOOGLE_API_KEY=your_key_here
+GOOGLE_API_KEY=your_key_here    # gemini (default in many experiment configs)
+OPENAI_API_KEY=your_key_here    # openai or vLLM
 ```
 
 ### 2) Run a Single Simulation
 
-From repo root:
+From repo root with a provider-specific example config:
+
+```bash
+python src/main.py examples/example1_gemini.yaml   # Gemini (cloud)
+python src/main.py examples/example1_openai.yaml   # OpenAI (cloud)
+python src/main.py examples/example1.yaml          # Ollama (local)
+python src/main.py examples/example1_vllm.yaml     # vLLM (local/HPC)
+```
+
+Or use experiment configs:
 
 ```bash
 python src/main.py experiments/configs/bg2500-big_comm.yaml
@@ -52,6 +62,11 @@ python src/main.py experiments/configs/bg2500-big_noncomm.yaml
 ## Documentation
 
 Published site: **https://abserayihunie.com/llm-swarm-environmental-perception/**
+
+Key pages:
+
+- [Configuration reference](docs/configuration.md) — all YAML options
+- [LLM providers](docs/llm-providers.md) — Gemini, OpenAI, Ollama, vLLM setup tutorials
 
 ## Reproduce Core Experiment Results
 
@@ -119,14 +134,16 @@ python pre_assets/ground_truth/build_ground_truth.py
 
 ## Configuration Notes
 
+- `llm.provider` selects the backend: `gemini`, `openai`, `ollama`, or `vllm` (see `src/llm/factory.py`).
 - `*_comm.yaml` enables peer communication (`robot.communication: true`).
 - `*_noncomm.yaml` disables peer communication (`robot.communication: false`).
 - `bg2500-big_*` uses larger sensing/communication radius (`coverage_side` and `neighbor_radius` 200).
 - `bg2500-small_*` uses smaller sensing/communication radius (150).
+- Ready-made samples live in `examples/example1_*.yaml`.
 
 ## Troubleshooting
 
-- **Missing API key**: simulation and ground-truth generation require `GOOGLE_API_KEY`.
+- **Missing API key**: set the env var named in `llm.api_key_env` (for example `GOOGLE_API_KEY` or `OPENAI_API_KEY`). Ollama does not need a key.
 - **No config passed**: always pass a config path to `src/main.py` 
 - **Background not found**: simulation reads from `src/assets/`; ensure the YAML `background_image` file exists there.
 - **Headless flag caveat**: current runtime path uses the windowed simulation loop
