@@ -8,8 +8,8 @@ import threading
 import time
 from typing import Any
 
-from llm.manager import build_inbox_prompt, build_photo_prompt
-from llm.providers.vllm import VllmProvider
+from swarm_perception.llm.manager import build_inbox_prompt, build_photo_prompt
+from swarm_perception.llm.providers.vllm import VllmProvider
 
 logger = logging.getLogger("swarm.llm")
 

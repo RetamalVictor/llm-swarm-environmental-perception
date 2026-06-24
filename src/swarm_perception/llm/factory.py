@@ -2,12 +2,12 @@
 
 from typing import Any
 
-from llm.async_manager import AsyncAPI_MANAGER
-from llm.manager import API_MANAGER
-from llm.providers.gemini import GeminiProvider
-from llm.providers.ollama import OllamaProvider
-from llm.providers.openai_provider import OpenAIProvider
-from llm.providers.vllm import VllmProvider
+from swarm_perception.llm.async_manager import AsyncAPI_MANAGER
+from swarm_perception.llm.manager import API_MANAGER
+from swarm_perception.llm.providers.gemini import GeminiProvider
+from swarm_perception.llm.providers.ollama import OllamaProvider
+from swarm_perception.llm.providers.openai_provider import OpenAIProvider
+from swarm_perception.llm.providers.vllm import VllmProvider
 
 
 def create_api_manager(n_threads: int, config: Any) -> API_MANAGER | AsyncAPI_MANAGER:

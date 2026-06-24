@@ -8,7 +8,7 @@ import yaml
 import logging
 
 config_log = logging.getLogger("swarm.config")
-from utils.paths import CONFIG_PATH
+from swarm_perception.utils.paths import CONFIG_PATH
 
 
 def dict_to_namespace(data: Any) -> Any:

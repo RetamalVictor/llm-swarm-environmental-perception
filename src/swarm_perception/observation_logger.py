@@ -10,7 +10,7 @@ from typing import Any
 import cv2
 import pygame as pg
 
-from utils.paths import OUTPUT_DIR
+from swarm_perception.utils.paths import OUTPUT_DIR
 
 
 class ObservationLogger:

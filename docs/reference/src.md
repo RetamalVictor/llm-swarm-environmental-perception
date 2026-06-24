@@ -2,66 +2,66 @@
 
 ## Main Runtime
 
-::: main
+::: swarm_perception.main
     options:
       show_root_heading: true
 
-::: camera_sensor
+::: swarm_perception.camera_sensor
     options:
       show_root_heading: true
 
-::: observation_logger
+::: swarm_perception.observation_logger
     options:
       show_root_heading: true
 
-::: actuator
+::: swarm_perception.actuator
     options:
       show_root_heading: true
 
 ## LLM Layer
 
-::: llm.factory
+::: swarm_perception.llm.factory
     options:
       show_root_heading: true
 
-::: llm.manager
+::: swarm_perception.llm.manager
     options:
       show_root_heading: true
 
-::: llm.async_manager
+::: swarm_perception.llm.async_manager
     options:
       show_root_heading: true
 
-::: llm.providers.base
+::: swarm_perception.llm.providers.base
     options:
       show_root_heading: true
 
-::: llm.providers.gemini
+::: swarm_perception.llm.providers.gemini
     options:
       show_root_heading: true
 
-::: llm.providers.openai_provider
+::: swarm_perception.llm.providers.openai_provider
     options:
       show_root_heading: true
 
-::: llm.providers.ollama
+::: swarm_perception.llm.providers.ollama
     options:
       show_root_heading: true
 
-::: llm.providers.vllm
+::: swarm_perception.llm.providers.vllm
     options:
       show_root_heading: true
 
 ## Utilities
 
-::: utils.config
+::: swarm_perception.utils.config
     options:
       show_root_heading: true
 
-::: utils.paths
+::: swarm_perception.utils.paths
     options:
       show_root_heading: true
 
-::: utils.logging_config
+::: swarm_perception.utils.logging_config
     options:
       show_root_heading: true

@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -20,11 +19,8 @@ from PIL import Image
 from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SRC_DIR = PROJECT_ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.append(str(SRC_DIR))
 
-from utils.config import SwarmConfig  # noqa: E402
+from swarm_perception.utils.config import SwarmConfig  # noqa: E402
 
 # One-time script settings (edit these directly if needed).
 CONFIG_PATH = PROJECT_ROOT / "configs" / "bg2500-big_comm.yaml"

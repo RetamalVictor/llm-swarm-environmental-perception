@@ -22,4 +22,13 @@ venv/
 # Runtime / simulation outputs
 logs/
 src/logs/
+output/
+runs/
+results/
 site/
+
+# Model / dataset caches
+.cache/
+**/.cache/
+hf_cache/
+torch_cache/

@@ -6,7 +6,7 @@ import threading
 import time
 from typing import Any
 
-from llm.providers.base import LLMProvider
+from swarm_perception.llm.providers.base import LLMProvider
 
 logger = logging.getLogger("swarm.llm")
 

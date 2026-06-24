@@ -3,7 +3,7 @@
 import logging
 import logging.config
 
-from utils.paths import LOG_DIR
+from swarm_perception.utils.paths import LOG_DIR
 
 LOG_DIR.mkdir(exist_ok=True)
 

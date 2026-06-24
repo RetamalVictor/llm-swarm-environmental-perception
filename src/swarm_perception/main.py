@@ -8,22 +8,22 @@ or deterministic merging.
 
 from vi import Agent, Config, HeadlessSimulation, Simulation, Window
 import pygame as pg
-from camera_sensor import CameraSensor
-from observation_logger import ObservationLogger
-from actuator import Actuator
-from llm.factory import create_api_manager
+from swarm_perception.camera_sensor import CameraSensor
+from swarm_perception.observation_logger import ObservationLogger
+from swarm_perception.actuator import Actuator
+from swarm_perception.llm.factory import create_api_manager
 import random
 import os
 import time
-from utils.paths import ASSETS_DIR, LOG_DIR, OUTPUT_DIR
-from utils.config import SwarmConfig
+from swarm_perception.utils.paths import ASSETS_DIR, LOG_DIR, OUTPUT_DIR
+from swarm_perception.utils.config import SwarmConfig
 import sys
 import re
 from collections import deque
 from typing import Any
 ## SETUP LOGS
-from utils.logging_config import setup_logging
-from utils.sim_log import comm_log, config_log, llm_log, log_run_banner, sim_log
+from swarm_perception.utils.logging_config import setup_logging
+from swarm_perception.utils.sim_log import comm_log, config_log, llm_log, log_run_banner, sim_log
 
 setup_logging()
 
@@ -689,7 +689,9 @@ vi_config = Config(
     duration=SIM_DURATION,
 )
 
-if __name__ == "__main__":
+def main() -> None:
+    """Console entrypoint. Config is still loaded at import time (see module top);
+    removing import-time globals is deferred to M0 Branch 2."""
     configure_runtime_mode()
     log_run_banner(
         config=config,
@@ -711,3 +713,7 @@ if __name__ == "__main__":
     sim_log.info("simulation started")
     sim.run()
     sim_log.info("simulation finished")
+
+
+if __name__ == "__main__":
+    main()

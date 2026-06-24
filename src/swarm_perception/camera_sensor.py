@@ -4,7 +4,7 @@ import cv2
 import pygame as pg
 from typing import Any
 
-from utils.paths import ASSETS_DIR
+from swarm_perception.utils.paths import ASSETS_DIR
 
 
 class CameraSensor:
