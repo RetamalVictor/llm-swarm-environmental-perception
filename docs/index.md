@@ -19,7 +19,6 @@ This documentation covers the implementation in `src/` and `experiments/` for th
 - Example configs: `examples/example1_*.yaml`
 - Batch runner: `experiments/run_experiments.py`
 - Metrics script: `experiments/metrics/plot_cosine_experiment_averages.py`
-- Paper PDF: [ABSERA-YIHUNIE-CAPSTONE-SPRING-2026.pdf](file:///Users/absera/Downloads/ABSERA-YIHUNIE-CAPSTONE-SPRING-2026.pdf)
 
 ## High-Level Workflow
 
