@@ -32,3 +32,8 @@ site/
 **/.cache/
 hf_cache/
 torch_cache/
+# local planning documents (never publish)
+MIGRATION_PLAN.md
+ROADMAP.md
+DESIGN.md
+paper/
