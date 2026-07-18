@@ -31,6 +31,7 @@ from swarm_perception.llm.factory import create_api_manager
 from swarm_perception.observation_logger import ObservationLogger
 from swarm_perception.utils.config import Config, ConfigError, load_config
 from swarm_perception.utils.paths import ASSETS_DIR, OUTPUT_DIR
+from swarm_perception.world.background import Background
 
 # Run-logging (observations/artifacts) is always on; not a per-run config knob.
 LOG_RESULTS = True
@@ -186,7 +187,7 @@ class Robot(Agent):
         self.sensor = CameraSensor(
             agent=self,
             coverage_side=self.sense_square,
-            background_image=cfg.simulation.background_image,
+            background=self.shared.background,  # type: ignore[attr-defined]
             sensing_radius=cfg.robot.neighbor_radius,
         )
         self.actuator = Actuator(self, rng=rng)
@@ -465,6 +466,8 @@ class _EnvironmentMixin:
         # self.shared is shared across all agents and the simulation.
         self.shared.cfg = cfg  # type: ignore[attr-defined]
         self.shared.rng = random.Random(cfg.simulation.seed)  # type: ignore[attr-defined]
+        # Load-once world image; every robot crops views of this one array.
+        self.shared.background = Background(background_path)  # type: ignore[attr-defined]
         self.shared.api_manager = create_api_manager(cfg.llm.thread_workers, cfg)  # type: ignore[attr-defined]
         self.shared.observation_logger = ObservationLogger(  # type: ignore[attr-defined]
             on=LOG_RESULTS,
