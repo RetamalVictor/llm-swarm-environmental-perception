@@ -1,0 +1,29 @@
+config:
+  name: smoke
+
+simulation:
+  run_length: 1
+  headless: true
+  width: 2500
+  height: 2500
+  fps: 5
+  num_of_robots: 3
+  background_image: "background-2500.png"
+  robot_image: "robot.png"
+  seed: 0
+
+robot:
+  linear_speed: 2.3
+  angular_velocity: 5
+  coverage_side: 150
+  neighbor_radius: 150
+  capture_frequency: 1
+  communication: true
+  self_learning: false
+  empty_observation: "none"
+  use_llm_inbox_synthesis: false
+
+llm:
+  provider: mock
+  model_name: mock
+  thread_workers: 2
