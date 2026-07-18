@@ -41,17 +41,17 @@ class CameraSensor:
         end_y = int(round(self._agent.pos.y + half_side))
         return start_x, start_y, end_x, end_y
 
-    def take_photo(self) -> Any:
-        """Capture and return the current local image crop.
+    def take_photo(self) -> tuple[Any, tuple[int, int, int, int]]:
+        """Capture the current local image crop and its ground-truth rect.
 
         Returns:
-            Zero-copy array view of the visible patch around the robot,
-            clipped to image bounds (BGR, same as the legacy behavior).
+            ``(crop, rect)`` — a zero-copy array view of the visible patch
+            around the robot (BGR, same as the legacy behavior) and the
+            clipped rect ``(x1, y1, x2, y2)`` it covers in image pixels.
         """
-        crop, _rect = self._background.crop(
+        return self._background.crop(
             (self._agent.pos.x, self._agent.pos.y), self.coverage_side
         )
-        return crop
 
     def show_outline(self, color: tuple[int, int, int] = (0, 0, 0)) -> None:
         """Draw sensor overlay and robot id label on the active display surface.

@@ -10,7 +10,7 @@
     options:
       show_root_heading: true
 
-::: swarm_perception.observation_logger
+::: swarm_perception.io.run_logger
     options:
       show_root_heading: true
 

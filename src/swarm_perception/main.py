@@ -8,8 +8,10 @@ or deterministic merging.
 Configuration is loaded inside :func:`main` and injected into the simulation via
 violet's shared state (``self.shared.cfg``); there are no import-time globals.
 
-Logging was removed for now; a dedicated logging module will be reintroduced
-later.
+Run logging goes through :class:`swarm_perception.io.run_logger.RunLogger`:
+every run appends events to ``events.jsonl`` and writes its reproducibility
+artifacts (``config_resolved.yaml``, ``run_metadata.json``) into one run
+directory.
 """
 
 from __future__ import annotations
@@ -20,6 +22,7 @@ import re
 import sys
 import time
 from collections import deque
+from pathlib import Path
 from typing import Any
 
 import pygame as pg
@@ -27,14 +30,11 @@ from vi import Agent, Config as ViConfig, HeadlessSimulation, Simulation, Window
 
 from swarm_perception.actuator import Actuator
 from swarm_perception.camera_sensor import CameraSensor
+from swarm_perception.io.run_logger import RunLogger
 from swarm_perception.llm.factory import create_api_manager
-from swarm_perception.observation_logger import ObservationLogger
 from swarm_perception.utils.config import Config, ConfigError, load_config
-from swarm_perception.utils.paths import ASSETS_DIR, OUTPUT_DIR
+from swarm_perception.utils.paths import ASSETS_DIR
 from swarm_perception.world.background import Background
-
-# Run-logging (observations/artifacts) is always on; not a per-run config knob.
-LOG_RESULTS = True
 
 
 def split_facts(paragraph: str) -> list[str]:
@@ -202,7 +202,7 @@ class Robot(Agent):
         # agent's memory
         self.current_observation = cfg.robot.empty_observation
         self.EMPTY_OBSERVATION = True
-        self.observation_logger = self.shared.observation_logger  # type: ignore
+        self.run_logger: RunLogger = self.shared.run_logger  # type: ignore[attr-defined]
         self.PHOTO_RESULT_PENDING = False
         self.photo_pending_since_tick = 0
         self.capture_epoch = 0
@@ -286,21 +286,29 @@ class Robot(Agent):
                 frame_state["robot_ids"].add(int(self.id))
                 if not frame_state["saved"] and len(frame_state["robot_ids"]) >= cfg.simulation.num_of_robots:
                     # Save one frame once all robots entered photo mode for this tick.
-                    self.observation_logger.log_frame_capture(self.tick_count)
+                    self.run_logger.save_frame(self.tick_count)
                     frame_state["saved"] = True
 
-            image = self.sensor.take_photo()
-            self.observation_logger.log_robot_crop(
-                robot_id=self.id,
-                tick_count=self.tick_count,
-                capture_epoch=self.capture_epoch,
-                cropped_image=image,
+            image, rect = self.sensor.take_photo()
+            self.run_logger.log_capture(
+                tick=self.tick_count,
+                epoch=self.capture_epoch,
+                robot=int(self.id),
+                bbox=rect,
+                pos=(self.pos.x, self.pos.y),
+            )
+            self.run_logger.save_crop(
+                robot_id=int(self.id),
+                tick=self.tick_count,
+                epoch=self.capture_epoch,
+                image=image,
             )
             self.llm.submit_photo_request(self.id, image, self.current_observation, cfg.robot.self_learning)
             self.PHOTO_RESULT_PENDING = True
             self.photo_pending_since_tick = self.tick_count
-            self.observation_logger.log_progress_snapshot(
-                robot_id=self.id,
+            self.run_logger.log_snapshot(
+                tick=self.tick_count,
+                robot=int(self.id),
                 observation=self.current_observation,
             )
 
@@ -317,12 +325,12 @@ class Robot(Agent):
                     self.current_observation,
                     cfg.robot.max_facts_per_observation,
                 )
-                self.observation_logger.log_comm_merge(
-                    receiver_robot_id=self.id,
-                    sender_robot_id=incoming_sender_id,
-                    sender_tick=incoming_tick,
+                self.run_logger.log_comm(
                     receiver_tick=self.tick_count,
-                    capture_epoch=self.capture_epoch,
+                    sender_tick=incoming_tick,
+                    epoch=self.capture_epoch,
+                    receiver=int(self.id),
+                    sender=int(incoming_sender_id),
                     merge_method="deterministic",
                     inbox_policy="within_budget",
                 )
@@ -346,12 +354,12 @@ class Robot(Agent):
                     self.current_observation,
                     cfg.robot.max_facts_per_observation,
                 )
-                self.observation_logger.log_comm_merge(
-                    receiver_robot_id=self.id,
-                    sender_robot_id=incoming_sender_id,
-                    sender_tick=incoming_tick,
+                self.run_logger.log_comm(
                     receiver_tick=self.tick_count,
-                    capture_epoch=self.capture_epoch,
+                    sender_tick=incoming_tick,
+                    epoch=self.capture_epoch,
+                    receiver=int(self.id),
+                    sender=int(incoming_sender_id),
                     merge_method="deterministic",
                     inbox_policy="deterministic_after_budget",
                 )
@@ -383,7 +391,6 @@ class Robot(Agent):
             )
             self.PHOTO_RESULT_PENDING = False
             self.EMPTY_OBSERVATION = False
-            self.observation_logger.log_observation(self.id, self.current_observation)
             return
 
         if self.cfg.wait_for_llm:
@@ -407,12 +414,12 @@ class Robot(Agent):
                 self.cfg.robot.max_facts_per_observation,
             )
             if self.pending_inbox_sender_id is not None and self.pending_inbox_sender_tick is not None:
-                self.observation_logger.log_comm_merge(
-                    receiver_robot_id=self.id,
-                    sender_robot_id=self.pending_inbox_sender_id,
-                    sender_tick=self.pending_inbox_sender_tick,
+                self.run_logger.log_comm(
                     receiver_tick=self.tick_count,
-                    capture_epoch=self.capture_epoch,
+                    sender_tick=self.pending_inbox_sender_tick,
+                    epoch=self.capture_epoch,
+                    receiver=int(self.id),
+                    sender=int(self.pending_inbox_sender_id),
                     merge_method="llm",
                     inbox_policy=self.pending_inbox_policy or "within_budget",
                 )
@@ -456,12 +463,16 @@ class _EnvironmentMixin:
     subclasses (base class + the headless tick-pacing ``after_update``).
     """
 
-    def _setup_environment(self, cfg: Config, background_path: Any) -> None:
+    def _setup_environment(
+        self, cfg: Config, background_path: Any, run_dir: Path | str | None = None
+    ) -> None:
         """Construct and register services shared across all agents.
 
         Args:
             cfg: Typed run configuration, exposed to agents as ``self.shared.cfg``.
             background_path: Optional path to a background image texture.
+            run_dir: Run output directory; defaults to
+                :func:`swarm_perception.io.run_logger.resolve_run_dir` on ``cfg``.
         """
         # self.shared is shared across all agents and the simulation.
         self.shared.cfg = cfg  # type: ignore[attr-defined]
@@ -469,14 +480,7 @@ class _EnvironmentMixin:
         # Load-once world image; every robot crops views of this one array.
         self.shared.background = Background(background_path)  # type: ignore[attr-defined]
         self.shared.api_manager = create_api_manager(cfg.llm.thread_workers, cfg)  # type: ignore[attr-defined]
-        self.shared.observation_logger = ObservationLogger(  # type: ignore[attr-defined]
-            on=LOG_RESULTS,
-            empty_observation=cfg.robot.empty_observation,
-            base_dir=cfg.simulation.output_dir or OUTPUT_DIR,
-            external_config=cfg,
-            save_robot_crops=cfg.simulation.save_robot_crops,
-            save_comm_merge_history=cfg.robot.save_comm_merge_history,
-        )
+        self.shared.run_logger = RunLogger(cfg, run_dir=run_dir)  # type: ignore[attr-defined]
         self.shared.photo_frame_capture_state = {"tick": None, "robot_ids": set(), "saved": False}  # type: ignore[attr-defined]
         self.shared.api_manager.start()  # type: ignore[attr-defined]
         self._load_background(background_path)
@@ -510,6 +514,7 @@ class EnvironmentSimulation(_EnvironmentMixin, Simulation):
         vi_config: ViConfig | None = None,
         cfg: Config | None = None,
         background_path: Any = None,
+        run_dir: Path | str | None = None,
     ) -> None:
         """Initialize simulation state and globally shared services.
 
@@ -517,9 +522,10 @@ class EnvironmentSimulation(_EnvironmentMixin, Simulation):
             vi_config: Violet simulation config object.
             cfg: Typed run configuration injected into agents.
             background_path: Optional path to background image texture.
+            run_dir: Run output directory; defaults to ``resolve_run_dir(cfg)``.
         """
         super().__init__(vi_config)
-        self._setup_environment(cfg, background_path)
+        self._setup_environment(cfg, background_path, run_dir)
 
     def after_update(self) -> None:
         """Render frame, then freeze between epochs when photo LLM sync is enabled."""
@@ -535,10 +541,11 @@ class EnvironmentHeadlessSimulation(_EnvironmentMixin, HeadlessSimulation):
         vi_config: ViConfig | None = None,
         cfg: Config | None = None,
         background_path: Any = None,
+        run_dir: Path | str | None = None,
     ) -> None:
         super().__init__(vi_config)
         self._last_tick_time = time.perf_counter()
-        self._setup_environment(cfg, background_path)
+        self._setup_environment(cfg, background_path, run_dir)
 
     def after_update(self) -> None:
         """Freeze for photo LLM batch completion, then pace ticks to simulation.fps."""
@@ -597,6 +604,7 @@ def main() -> None:
         images=[str(ASSETS_DIR / cfg.simulation.robot_image)],
     )
     sim.run()
+    sim.shared.run_logger.finalize()  # type: ignore[attr-defined]
 
 
 if __name__ == "__main__":
