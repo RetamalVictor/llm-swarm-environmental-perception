@@ -17,6 +17,10 @@ import yaml
 from swarm_perception.utils.paths import CONFIG_PATH
 
 
+class ConfigError(ValueError):
+    """Raised for missing files, malformed YAML, unknown keys, or invalid values."""
+
+
 @dataclass(frozen=True)
 class RunCfg:
     """Top-level run metadata (the YAML ``config:`` section)."""
@@ -40,6 +44,14 @@ class SimulationCfg:
     save_photo_frames: bool = False
     save_robot_crops: bool = False
     output_dir: str | None = None
+
+    def __post_init__(self) -> None:
+        for name in ("width", "height", "num_of_robots", "run_length"):
+            if getattr(self, name) <= 0:
+                raise ConfigError(f"simulation.{name} must be > 0, got {getattr(self, name)}")
+        # fps == 0 would make photo_ticks/sim_duration 0 and the run never terminate.
+        if self.fps <= 0:
+            raise ConfigError(f"simulation.fps must be > 0, got {self.fps}")
 
 
 @dataclass(frozen=True)
@@ -73,6 +85,15 @@ class RobotCfg:
         object.__setattr__(
             self, "max_inbox_merges_per_epoch", max(0, int(self.max_inbox_merges_per_epoch))
         )
+        for name in ("coverage_side", "capture_frequency", "neighbor_radius"):
+            if getattr(self, name) <= 0:
+                raise ConfigError(f"robot.{name} must be > 0, got {getattr(self, name)}")
+        allowed_policies = {"drop", "deterministic", "llm"}
+        if self.inbox_merge_after_budget not in allowed_policies:
+            raise ConfigError(
+                f"robot.inbox_merge_after_budget must be one of {sorted(allowed_policies)}, "
+                f"got {self.inbox_merge_after_budget!r}"
+            )
 
 
 @dataclass(frozen=True)
@@ -142,18 +163,32 @@ class Config:
 
 
 def _section(cls: type, data: Any, name: str) -> Any:
-    """Build a config dataclass from a YAML sub-mapping, ignoring unknown keys."""
+    """Build a config dataclass from a YAML sub-mapping; unknown keys are errors."""
+    mapping = dict(data or {})
     valid = {f.name for f in fields(cls)}
-    kwargs = {k: v for k, v in (data or {}).items() if k in valid}
+    unknown = sorted(set(mapping) - valid)
+    if unknown:
+        raise ConfigError(
+            f"config section '{name}' has unknown key(s) {unknown}; valid keys: {sorted(valid)}"
+        )
     try:
-        return cls(**kwargs)
+        return cls(**mapping)
     except TypeError as error:
-        raise ValueError(f"config section '{name}' is invalid: {error}") from error
+        raise ConfigError(f"config section '{name}' is invalid: {error}") from error
+
+
+_ROOT_SECTIONS = {"config", "simulation", "robot", "llm"}
 
 
 def _build(data: Any) -> Config:
     if not isinstance(data, dict):
-        raise ValueError("config root must be a mapping")
+        raise ConfigError("config root must be a mapping")
+    unknown_sections = sorted(set(data) - _ROOT_SECTIONS)
+    if unknown_sections:
+        raise ConfigError(
+            f"unknown top-level config section(s) {unknown_sections}; "
+            f"valid sections: {sorted(_ROOT_SECTIONS)}"
+        )
     llm_data = dict(data.get("llm") or {})
     prompts = _section(PromptsCfg, llm_data.pop("prompts", None), "llm.prompts")
     return Config(
@@ -174,15 +209,15 @@ def load_config(path: str | Path | None = None) -> Config:
         A validated, frozen :class:`Config`.
 
     Raises:
-        SystemExit: If the file is missing or not valid YAML.
-        ValueError: If a section is missing required keys.
+        ConfigError: If the file is missing, not valid YAML, contains unknown
+            keys, or fails validation. The CLI translates this to exit code 1.
     """
     cfg_path = Path(path) if path else CONFIG_PATH / "config-debug.yaml"
     try:
         with open(cfg_path, "r", encoding="utf-8") as file:
             data = yaml.safe_load(file)
     except FileNotFoundError:
-        raise SystemExit(f"config not found: {cfg_path}")
+        raise ConfigError(f"config not found: {cfg_path}") from None
     except yaml.YAMLError as error:
-        raise SystemExit(f"config parse error in {cfg_path}: {error}")
+        raise ConfigError(f"config parse error in {cfg_path}: {error}") from error
     return _build(data)

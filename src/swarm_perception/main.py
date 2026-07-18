@@ -29,7 +29,7 @@ from swarm_perception.actuator import Actuator
 from swarm_perception.camera_sensor import CameraSensor
 from swarm_perception.llm.factory import create_api_manager
 from swarm_perception.observation_logger import ObservationLogger
-from swarm_perception.utils.config import Config, load_config
+from swarm_perception.utils.config import Config, ConfigError, load_config
 from swarm_perception.utils.paths import ASSETS_DIR, OUTPUT_DIR
 
 # Run-logging (observations/artifacts) is always on; not a per-run config knob.
@@ -574,7 +574,11 @@ def build_vi_config(cfg: Config) -> ViConfig:
 def main() -> None:
     """Console entrypoint: load config, wire the simulation, and run it."""
     config_path = sys.argv[1] if len(sys.argv) > 1 else None
-    cfg = load_config(config_path)
+    try:
+        cfg = load_config(config_path)
+    except ConfigError as error:
+        print(f"error: {error}", file=sys.stderr)
+        raise SystemExit(1) from None
 
     configure_runtime_mode(cfg.simulation.headless)
     vi_config = build_vi_config(cfg)
