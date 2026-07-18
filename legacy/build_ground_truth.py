@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-from swarm_perception.utils.config import SwarmConfig  # noqa: E402
+from swarm_perception.utils.config import load_config  # noqa: E402
 
 # One-time script settings (edit these directly if needed).
 CONFIG_PATH = PROJECT_ROOT / "configs" / "bg2500-big_comm.yaml"
@@ -121,7 +121,7 @@ def main() -> None:
     if not api_key:
         raise EnvironmentError("GOOGLE_API_KEY is missing. Add it to your environment/.env.")
 
-    config = SwarmConfig(CONFIG_PATH).load_config()
+    config = load_config(CONFIG_PATH)
     model_name = config.llm.model_name
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(model_name)
