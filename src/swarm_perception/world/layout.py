@@ -49,11 +49,22 @@ class LayoutObject:
 
         The RLE decode is cached on first call. The dataclass is frozen, so
         the cache is stashed in ``__dict__`` via ``object.__setattr__``; the
-        cached array is returned read-only so sharing it is safe.
+        cached array is an owning, read-only copy so sharing it is safe.
+
+        Raises:
+            ValueError: If the decoded mask's shape disagrees with ``bbox`` —
+                numpy would otherwise clip mismatched slices silently and
+                corrupt every visibility answer.
         """
         cached = self.__dict__.get("_mask")
         if cached is None:
-            cached = decode_mask(self.mask_rle)
+            cached = np.array(decode_mask(self.mask_rle))
+            x1, y1, x2, y2 = self.bbox
+            if cached.shape != (y2 - y1, x2 - x1):
+                raise ValueError(
+                    f"object {self.id}: mask shape {cached.shape} does not match "
+                    f"bbox extent {(y2 - y1, x2 - x1)}"
+                )
             cached.flags.writeable = False
             object.__setattr__(self, "_mask", cached)
         return cached
@@ -127,7 +138,12 @@ class Layout:
 
     @property
     def objects_by_id(self) -> dict[int, LayoutObject]:
-        return {obj.id: obj for obj in self.objects}
+        """Id -> object mapping, built once and cached (Layout is frozen)."""
+        cached = self.__dict__.get("_objects_by_id")
+        if cached is None:
+            cached = {obj.id: obj for obj in self.objects}
+            object.__setattr__(self, "_objects_by_id", cached)
+        return cached
 
     def __len__(self) -> int:
         return len(self.objects)
@@ -147,8 +163,16 @@ class Layout:
         rect intersection, at least ``min_visible_px`` of the object's mask
         pixels must be set. An empty rect intersection is never visible.
 
+        Note the unit difference: at the same ``min_visible_px``, bbox mode
+        thresholds intersection *area* while mask mode thresholds *opaque
+        pixels* — for sprites with transparent margins, bbox mode can pass a
+        threshold that mask mode fails. Do not compare modes at a fixed
+        threshold without accounting for this.
+
         ``crop_bbox`` may extend beyond the canvas; the out-of-canvas part
-        simply cannot overlap any object.
+        simply cannot overlap any object. A degenerate rect (``x1 == x2`` or
+        ``y1 == y2``) is legitimately empty; a *negative* extent is always a
+        caller bug and raises.
         """
         if mode not in _VISIBILITY_MODES:
             raise ValueError(
@@ -160,6 +184,11 @@ class Layout:
             )
 
         cx1, cy1, cx2, cy2 = crop_bbox
+        if cx2 < cx1 or cy2 < cy1:
+            raise ValueError(
+                f"crop_bbox has negative extent: {crop_bbox} (expected half-open "
+                "(x1, y1, x2, y2) with x1 <= x2 and y1 <= y2)"
+            )
         visible: list[int] = []
         for obj in self.objects:
             ox1, oy1, ox2, oy2 = obj.bbox

@@ -229,3 +229,37 @@ def test_generator_roundtrip_and_full_canvas_visibility(tmp_path) -> None:
     # 1x1 crop in the corner overlaps nothing.
     assert layout.visible_in((0, 0, 1, 1), mode="mask") == []
     assert layout.visible_in((0, 0, 1, 1), mode="bbox") == []
+
+
+def test_mask_shape_mismatch_raises() -> None:
+    """A mask whose RLE header disagrees with bbox must raise, not clip."""
+    obj = LayoutObject(
+        id=3,
+        label="bad",
+        png="bad.png",
+        bbox=(10, 10, 14, 14),  # 4x4 extent
+        center=(12.0, 12.0),
+        mask_rle=encode_mask(np.ones((3, 3), dtype=bool)),
+    )
+    with pytest.raises(ValueError, match="mask shape"):
+        obj.mask()
+
+
+def test_negative_extent_crop_raises(l_layout) -> None:
+    with pytest.raises(ValueError, match="negative extent"):
+        l_layout.visible_in((30, 30, 10, 10), mode="bbox")
+
+
+def test_degenerate_crop_is_empty_not_error(l_layout) -> None:
+    assert l_layout.visible_in((12, 12, 12, 20), mode="mask") == []
+
+
+def test_mask_is_immutable_even_via_base(l_layout) -> None:
+    mask = l_layout.objects[0].mask()
+    assert mask.base is None  # owning copy: no writable array reachable
+    with pytest.raises(ValueError):
+        mask[0, 0] = False
+
+
+def test_objects_by_id_cached(l_layout) -> None:
+    assert l_layout.objects_by_id is l_layout.objects_by_id
