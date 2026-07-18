@@ -66,7 +66,6 @@ Published site: **https://abserayihunie.com/llm-swarm-environmental-perception/*
 Key pages:
 
 - [Configuration reference](docs/configuration.md) — all YAML options
-- [LLM providers](docs/llm-providers.md) — Gemini, OpenAI, Ollama, vLLM setup tutorials
 
 ## Reproduce Core Experiment Results
 
