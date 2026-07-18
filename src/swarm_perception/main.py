@@ -136,7 +136,7 @@ class Robot(Agent):
             key = (int(record["key"][0]), int(record["key"][1]), int(record["key"][2]))
             if key not in self.memory:
                 self.memory[key] = record
-        cap = self.cfg.robot.max_facts_per_observation
+        cap = self.cfg.robot.memory_cap
         if len(self.memory) > cap:
             self.memory = {key: self.memory[key] for key in sorted(self.memory)[:cap]}
 

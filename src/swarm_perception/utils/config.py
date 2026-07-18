@@ -1,14 +1,14 @@
 """Typed swarm configuration loaded from YAML.
 
 Config is parsed into frozen dataclasses with validation; values derived from
-other fields (photo_ticks, sim_duration, timeouts, the inbox-synthesis /
-wait-for-llm fallbacks) are exposed as computed properties on :class:`Config`
-instead of being baked into module-level globals at import time.
+other fields (photo_ticks, sim_duration) are exposed as computed properties on
+:class:`Config` instead of being baked into module-level globals at import
+time.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, fields
 from pathlib import Path
 from typing import Any
 
@@ -65,17 +65,9 @@ class RobotCfg:
     capture_frequency: float
     communication: bool
     self_learning: bool
-    empty_observation: str = "first run. no observations so far"
-    max_facts_per_observation: int = 40
+    memory_cap: int = 40
     max_inbox_merges_per_epoch: int = 1
     inbox_merge_after_budget: str = "drop"
-    save_comm_merge_history: bool = False
-    use_llm_inbox_synthesis: bool | None = None
-    no_inbox_synthesis: bool = False
-    wait_for_llm: bool = False
-    wait_for_photo_llm: bool = False
-    photo_timeout_ticks: int | None = None
-    inbox_timeout_ticks: int | None = None
 
     def __post_init__(self) -> None:
         # Normalize the two fields the old code cleaned at read time.
@@ -88,35 +80,14 @@ class RobotCfg:
         for name in ("coverage_side", "capture_frequency", "neighbor_radius"):
             if getattr(self, name) <= 0:
                 raise ConfigError(f"robot.{name} must be > 0, got {getattr(self, name)}")
-        allowed_policies = {"drop", "deterministic", "llm"}
+        if self.memory_cap <= 0:
+            raise ConfigError(f"robot.memory_cap must be > 0, got {self.memory_cap}")
+        allowed_policies = {"drop", "deterministic"}
         if self.inbox_merge_after_budget not in allowed_policies:
             raise ConfigError(
                 f"robot.inbox_merge_after_budget must be one of {sorted(allowed_policies)}, "
                 f"got {self.inbox_merge_after_budget!r}"
             )
-
-
-@dataclass(frozen=True)
-class PromptsCfg:
-    """LLM prompt templates (the YAML ``llm.prompts:`` section)."""
-
-    photo_analysis_self_learning: str = "{observation}"
-    photo_analysis_no_self_learning: str = ""
-    text_synthesis: str = "{current_observation} {inbox}"
-
-
-@dataclass(frozen=True)
-class LlmCfg:
-    """LLM provider settings (the YAML ``llm:`` section)."""
-
-    model_name: str
-    thread_workers: int
-    provider: str = "gemini"
-    temperature: float = 0.05
-    max_output_tokens: int = 220
-    base_url: str | None = None
-    api_key_env: str | None = None
-    prompts: PromptsCfg = field(default_factory=PromptsCfg)
 
 
 @dataclass(frozen=True)
@@ -126,7 +97,6 @@ class Config:
     config: RunCfg
     simulation: SimulationCfg
     robot: RobotCfg
-    llm: LlmCfg
 
     # --- derived values (formerly module-level globals) ---
     @property
@@ -138,28 +108,6 @@ class Config:
     def sim_duration(self) -> int:
         """Total simulation ticks across all capture epochs."""
         return self.simulation.run_length * self.photo_ticks
-
-    @property
-    def photo_timeout_ticks(self) -> int:
-        if self.robot.photo_timeout_ticks is not None:
-            return self.robot.photo_timeout_ticks
-        return self.photo_ticks * 2
-
-    @property
-    def inbox_timeout_ticks(self) -> int:
-        if self.robot.inbox_timeout_ticks is not None:
-            return self.robot.inbox_timeout_ticks
-        return self.photo_ticks
-
-    @property
-    def use_llm_inbox_synthesis(self) -> bool:
-        if self.robot.use_llm_inbox_synthesis is not None:
-            return bool(self.robot.use_llm_inbox_synthesis)
-        return not self.robot.no_inbox_synthesis
-
-    @property
-    def wait_for_llm(self) -> bool:
-        return bool(self.robot.wait_for_llm or self.robot.wait_for_photo_llm)
 
 
 def _section(cls: type, data: Any, name: str) -> Any:
@@ -177,7 +125,7 @@ def _section(cls: type, data: Any, name: str) -> Any:
         raise ConfigError(f"config section '{name}' is invalid: {error}") from error
 
 
-_ROOT_SECTIONS = {"config", "simulation", "robot", "llm"}
+_ROOT_SECTIONS = {"config", "simulation", "robot"}
 
 
 def _build(data: Any) -> Config:
@@ -189,13 +137,10 @@ def _build(data: Any) -> Config:
             f"unknown top-level config section(s) {unknown_sections}; "
             f"valid sections: {sorted(_ROOT_SECTIONS)}"
         )
-    llm_data = dict(data.get("llm") or {})
-    prompts = _section(PromptsCfg, llm_data.pop("prompts", None), "llm.prompts")
     return Config(
         config=_section(RunCfg, data.get("config"), "config"),
         simulation=_section(SimulationCfg, data.get("simulation"), "simulation"),
         robot=_section(RobotCfg, data.get("robot"), "robot"),
-        llm=_section(LlmCfg, {**llm_data, "prompts": prompts}, "llm"),
     )
 
 
