@@ -61,7 +61,3 @@
 ::: swarm_perception.utils.paths
     options:
       show_root_heading: true
-
-::: swarm_perception.utils.logging_config
-    options:
-      show_root_heading: true

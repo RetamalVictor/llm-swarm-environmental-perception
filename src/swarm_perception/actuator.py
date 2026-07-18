@@ -3,20 +3,22 @@
 import random
 from typing import Any
 
-random.seed(43)
-
 
 class Actuator:
     """Apply movement commands to a robot pose each simulation tick."""
 
-    def __init__(self, agent: Any) -> None:
+    def __init__(self, agent: Any, rng: random.Random | None = None) -> None:
         """Attach the actuator and initialize heading.
 
         Args:
             agent: Violet agent instance whose pose is mutated in place.
+            rng: Seeded RNG used for the initial heading. Injected from the
+                simulation's single run seed so motion is reproducible; falls
+                back to the module ``random`` only if not provided.
         """
         self.agent = agent
-        self.agent.current_angle = random.uniform(0, 360)
+        source = rng if rng is not None else random
+        self.agent.current_angle = source.uniform(0, 360)
 
     def update(self, linear_speed: float, angular_velocity: float) -> None:
         """Integrate one control step using polar movement.
