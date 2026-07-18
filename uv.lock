@@ -2343,6 +2343,7 @@ source = { editable = "." }
 dependencies = [
     { name = "numpy" },
     { name = "opencv-python" },
+    { name = "pillow" },
     { name = "pygame" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
@@ -2387,6 +2388,7 @@ requires-dist = [
     { name = "openai", marker = "extra == 'llm'", specifier = ">=2.6" },
     { name = "opencv-python", specifier = ">=4.12" },
     { name = "pandas", marker = "extra == 'eval'", specifier = ">=3.0" },
+    { name = "pillow", specifier = ">=11.3" },
     { name = "pillow", marker = "extra == 'llm'", specifier = ">=11.3" },
     { name = "pygame", specifier = ">=2.6" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
