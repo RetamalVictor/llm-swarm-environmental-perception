@@ -42,3 +42,17 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/swarm_perception"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+
+# PyYAML ships no stubs; the rest of the simulation stack is listed so a
+# stub-less wheel on another platform cannot break the type gate.
+[[tool.mypy.overrides]]
+module = ["vi", "vi.*", "pygame", "pygame.*", "cv2", "cv2.*", "yaml", "yaml.*"]
+ignore_missing_imports = true

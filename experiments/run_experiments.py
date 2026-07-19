@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Batch runner for communication vs non-communication experiment pairs."""
+
+from __future__ import annotations
 
 import argparse
 import csv
