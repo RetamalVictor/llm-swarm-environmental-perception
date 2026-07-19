@@ -57,13 +57,9 @@ Try non-communication baseline:
 uv run swarm-run experiments/configs/bg2500-big_noncomm.yaml
 ```
 
-## Documentation
+## Configuration
 
-Published site: **https://abserayihunie.com/llm-swarm-environmental-perception/**
-
-Key pages:
-
-- [Configuration reference](docs/configuration.md) — all YAML options
+Every YAML key is documented inline in `examples/example1.yaml`.
 
 ## Reproduce Core Experiment Results
 
