@@ -1,8 +1,22 @@
 # API Reference: Runtime (`src`)
 
-## Main Runtime
+## Entrypoint
 
-::: swarm_perception.main
+::: swarm_perception.cli
+    options:
+      show_root_heading: true
+
+## Simulation
+
+::: swarm_perception.sim.engine
+    options:
+      show_root_heading: true
+
+::: swarm_perception.sim.robot
+    options:
+      show_root_heading: true
+
+::: swarm_perception.sim.actuator
     options:
       show_root_heading: true
 
@@ -10,17 +24,19 @@
     options:
       show_root_heading: true
 
+## Logging
+
 ::: swarm_perception.io.run_logger
     options:
       show_root_heading: true
 
-::: swarm_perception.actuator
+## Configuration and Utilities
+
+::: swarm_perception.config.schema
     options:
       show_root_heading: true
 
-## Utilities
-
-::: swarm_perception.utils.config
+::: swarm_perception.config.loader
     options:
       show_root_heading: true
 

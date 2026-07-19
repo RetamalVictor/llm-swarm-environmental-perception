@@ -7,9 +7,10 @@ The main workflow is centered on three folders:
 
 ## What Each Core Module Does
 
-- `src/main.py`: entrypoint for one simulation run, robot control loop, LLM calls, and neighbor communication.
-- `src/camera_sensor.py`: takes local image crops from the environment image.
-- `src/observation_logger.py`: writes per-robot observation history and optional artifacts (frames, crops, merge logs).
+- `src/swarm_perception/cli.py`: the `swarm-run` entrypoint for one simulation run (config path plus `--headless`, `--seed`, `--output-dir` overrides).
+- `src/swarm_perception/sim/`: simulation engine, robot control loop, and actuator.
+- `src/swarm_perception/camera_sensor.py`: takes local image crops from the environment image.
+- `src/swarm_perception/io/run_logger.py`: appends per-run `events.jsonl` and writes reproducibility artifacts.
 - `experiments/run_experiments.py`: runs paired communication/non-communication experiments across seeds.
 - `experiments/metrics/plot_cosine_experiment_averages.py`: computes recall/precision/F1 against ground truth and generates plots.
 - `pre_assets/scripts/generate_background.py`: creates synthetic backgrounds by composing object PNGs.
@@ -38,25 +39,22 @@ OPENAI_API_KEY=your_key_here    # openai or vLLM
 
 ### 2) Run a Single Simulation
 
-From repo root with a provider-specific example config:
+From repo root with the example config:
 
 ```bash
-python src/main.py examples/example1_gemini.yaml   # Gemini (cloud)
-python src/main.py examples/example1_openai.yaml   # OpenAI (cloud)
-python src/main.py examples/example1.yaml          # Ollama (local)
-python src/main.py examples/example1_vllm.yaml     # vLLM (local/HPC)
+uv run swarm-run examples/example1.yaml
 ```
 
 Or use experiment configs:
 
 ```bash
-python src/main.py experiments/configs/bg2500-big_comm.yaml
+uv run swarm-run experiments/configs/bg2500-big_comm.yaml
 ```
 
 Try non-communication baseline:
 
 ```bash
-python src/main.py experiments/configs/bg2500-big_noncomm.yaml
+uv run swarm-run experiments/configs/bg2500-big_noncomm.yaml
 ```
 
 ## Documentation
@@ -133,16 +131,13 @@ python pre_assets/ground_truth/build_ground_truth.py
 
 ## Configuration Notes
 
-- `llm.provider` selects the backend: `gemini`, `openai`, `ollama`, or `vllm` (see `src/llm/factory.py`).
 - `*_comm.yaml` enables peer communication (`robot.communication: true`).
 - `*_noncomm.yaml` disables peer communication (`robot.communication: false`).
 - `bg2500-big_*` uses larger sensing/communication radius (`coverage_side` and `neighbor_radius` 200).
 - `bg2500-small_*` uses smaller sensing/communication radius (150).
-- Ready-made samples live in `examples/example1_*.yaml`.
+- Ready-made samples live in `examples/`.
 
 ## Troubleshooting
 
-- **Missing API key**: set the env var named in `llm.api_key_env` (for example `GOOGLE_API_KEY` or `OPENAI_API_KEY`). Ollama does not need a key.
-- **No config passed**: always pass a config path to `src/main.py` 
+- **No config passed**: always pass a config path to `swarm-run`.
 - **Background not found**: simulation reads from `src/assets/`; ensure the YAML `background_image` file exists there.
-- **Headless flag caveat**: current runtime path uses the windowed simulation loop
