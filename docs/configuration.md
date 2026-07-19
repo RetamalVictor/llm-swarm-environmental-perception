@@ -1,6 +1,8 @@
 # Configuration Reference
 
-Simulation behavior is controlled by a single YAML file passed to `swarm-run` (or `python -m swarm_perception`). The loader (`swarm_perception.utils.config.SwarmConfig`) converts nested keys into dot-access namespaces (for example, `config.robot.coverage_side`).
+Simulation behavior is controlled by a single YAML file passed to `swarm-run` (or `python -m swarm_perception`). The loader (`swarm_perception.config.load_config`) parses it into validated frozen dataclasses (for example, `cfg.robot.coverage_side`).
+
+The CLI can override selected values without editing the file: `--headless` forces `simulation.headless`, `--seed INT` replaces `simulation.seed`, and `--output-dir PATH` replaces `simulation.output_dir`.
 
 Start from the ready-made samples in `examples/`.
 
@@ -37,14 +39,14 @@ Controls the pygame world, run duration, and artifact saving.
 | `headless` | bool | `false` | When `true`, runs without a visible UI window. Robot crops are still captured. |
 | `width` | int | — | Simulation world width in pixels. |
 | `height` | int | — | Simulation world height in pixels. |
-| `fps` | int | — | Simulation ticks per real second. Set `0` for uncapped headless speed. |
+| `fps` | int | — | Simulated ticks per second; must be `> 0`. Only derives capture timing (`PHOTO_TICKS`); headless runs always execute flat-out. |
 | `num_of_robots` | int | — | Number of robots spawned at startup. |
 | `background_image` | string | — | Filename under `src/assets/` for the environment image. |
 | `robot_image` | string | — | Filename under `src/assets/` for the robot sprite. |
 | `seed` | int | — | Random seed for reproducible placement and motion. |
 | `save_photo_frames` | bool | `false` | Save one full-scene PNG per capture epoch to `run_output/frames/`. Requires an active pygame display surface (typically **not** headless). |
 | `save_robot_crops` | bool | `false` | Save each robot's cropped camera image per epoch to `run_output/robot_crops/`. Works in headless and windowed modes. |
-| `output_dir` | string | `output/` | Override the run output root. `experiments/run_experiments.py` sets this per job automatically. |
+| `output_dir` | string | *(unset)* | When set, used verbatim as the run directory; otherwise a timestamped directory is created under `output/`. `experiments/run_experiments.py` sets this per job automatically. |
 
 ### Derived timing
 

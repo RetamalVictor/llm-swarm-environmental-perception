@@ -13,9 +13,8 @@ This documentation covers the implementation in `src/` and `experiments/` for th
 ## Quick Links
 
 - Project README: `README.md`
-- Main runtime entrypoint: `src/main.py`
-- LLM factory: `src/llm/factory.py`
-- Example configs: `examples/example1_*.yaml`
+- Run entrypoint: `swarm-run` (`src/swarm_perception/cli.py`)
+- Example configs: `examples/example1.yaml`
 - Batch runner: `experiments/run_experiments.py`
 - Metrics script: `experiments/metrics/plot_cosine_experiment_averages.py`
 
@@ -23,10 +22,10 @@ This documentation covers the implementation in `src/` and `experiments/` for th
 
 ```mermaid
 flowchart LR
-  configYaml[Config YAML] --> mainPy[src/main.py]
-  mainPy --> runOutput[output or experiments/runs]
-  runOutput --> robotsJson[robots.json snapshots]
-  robotsJson --> metricsPy[plot_cosine_experiment_averages.py]
+  configYaml[Config YAML] --> swarmRun[swarm-run CLI]
+  swarmRun --> runOutput[output or experiments/runs]
+  runOutput --> eventsJsonl[events.jsonl]
+  eventsJsonl --> metricsPy[plot_cosine_experiment_averages.py]
   gtJson[Ground truth JSON] --> metricsPy
   metricsPy --> plotsAndCsv[CSV summaries and PNG dashboards]
 ```

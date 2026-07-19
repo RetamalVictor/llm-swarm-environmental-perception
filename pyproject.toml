@@ -33,7 +33,7 @@ dev = [
 ]
 
 [project.scripts]
-swarm-run = "swarm_perception.main:main"
+swarm-run = "swarm_perception.cli:main"
 swarm-gen = "swarm_perception.world.generate:main"
 
 [build-system]

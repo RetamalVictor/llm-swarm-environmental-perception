@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-from swarm_perception.utils.config import load_config  # noqa: E402
+from swarm_perception.config import load_config  # noqa: E402
 
 # One-time script settings (edit these directly if needed).
 CONFIG_PATH = PROJECT_ROOT / "configs" / "bg2500-big_comm.yaml"

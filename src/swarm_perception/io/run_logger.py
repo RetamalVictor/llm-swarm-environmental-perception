@@ -52,7 +52,7 @@ import cv2
 import pygame as pg
 import yaml
 
-from swarm_perception.utils.config import Config
+from swarm_perception.config import Config
 from swarm_perception.utils.paths import OUTPUT_DIR
 
 _JSON_SEPARATORS = (",", ":")

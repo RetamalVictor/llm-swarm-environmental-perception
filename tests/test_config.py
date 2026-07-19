@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from swarm_perception.utils.config import Config, ConfigError, load_config
+from swarm_perception.config import Config, ConfigError, load_config
 
 REPO = Path(__file__).resolve().parents[1]
 

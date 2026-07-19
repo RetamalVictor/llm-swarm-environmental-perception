@@ -1,20 +1,15 @@
-"""Typed swarm configuration loaded from YAML.
+"""Typed swarm configuration schema.
 
 Config is parsed into frozen dataclasses with validation; values derived from
 other fields (photo_ticks, sim_duration) are exposed as computed properties on
 :class:`Config` instead of being baked into module-level globals at import
-time.
+time. YAML reading lives in :mod:`swarm_perception.config.loader`.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from pathlib import Path
 from typing import Any
-
-import yaml
-
-from swarm_perception.utils.paths import CONFIG_PATH
 
 
 class ConfigError(ValueError):
@@ -128,7 +123,20 @@ def _section(cls: type, data: Any, name: str) -> Any:
 _ROOT_SECTIONS = {"config", "simulation", "robot"}
 
 
-def _build(data: Any) -> Config:
+def build_config(data: Any) -> Config:
+    """Validate a parsed YAML mapping into a typed :class:`Config`.
+
+    Args:
+        data: Root object parsed from YAML; must be a mapping of the known
+            top-level sections.
+
+    Returns:
+        A validated, frozen :class:`Config`.
+
+    Raises:
+        ConfigError: On a non-mapping root, unknown sections, unknown keys,
+            or invalid values.
+    """
     if not isinstance(data, dict):
         raise ConfigError("config root must be a mapping")
     unknown_sections = sorted(set(data) - _ROOT_SECTIONS)
@@ -142,27 +150,3 @@ def _build(data: Any) -> Config:
         simulation=_section(SimulationCfg, data.get("simulation"), "simulation"),
         robot=_section(RobotCfg, data.get("robot"), "robot"),
     )
-
-
-def load_config(path: str | Path | None = None) -> Config:
-    """Read and validate a YAML config into a typed :class:`Config`.
-
-    Args:
-        path: Path to the YAML file. Defaults to ``configs/config-debug.yaml``.
-
-    Returns:
-        A validated, frozen :class:`Config`.
-
-    Raises:
-        ConfigError: If the file is missing, not valid YAML, contains unknown
-            keys, or fails validation. The CLI translates this to exit code 1.
-    """
-    cfg_path = Path(path) if path else CONFIG_PATH / "config-debug.yaml"
-    try:
-        with open(cfg_path, "r", encoding="utf-8") as file:
-            data = yaml.safe_load(file)
-    except FileNotFoundError:
-        raise ConfigError(f"config not found: {cfg_path}") from None
-    except yaml.YAMLError as error:
-        raise ConfigError(f"config parse error in {cfg_path}: {error}") from error
-    return _build(data)
