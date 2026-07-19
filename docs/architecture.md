@@ -71,4 +71,4 @@ flowchart TB
 | `llm/providers/base.py` | `generate_text` / `generate_vision` protocol |
 | `llm/providers/*.py` | Provider-specific API clients |
 
-See [LLM Providers](llm-providers.md) for per-backend setup and [Configuration](configuration.md) for all YAML keys.
+See [Configuration](configuration.md) for all YAML keys.

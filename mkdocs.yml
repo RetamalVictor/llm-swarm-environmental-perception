@@ -1,9 +1,9 @@
 site_name: Swarm Conversational Agents
 site_description: Documentation for the capstone swarm perception framework
-site_url: https://absera.github.io/swarm-robotics/
-repo_url: https://github.com/absera/swarm-robotics
-repo_name: absera/swarm-robotics
-edit_uri: edit/main/docs/
+site_url: https://retamalvictor.github.io/llm-swarm-environmental-perception/
+repo_url: https://github.com/RetamalVictor/llm-swarm-environmental-perception
+repo_name: RetamalVictor/llm-swarm-environmental-perception
+edit_uri: https://github.com/RetamalVictor/llm-swarm-environmental-perception/edit/main/docs/
 theme:
   name: material
 plugins:
@@ -32,7 +32,6 @@ nav:
   - Home: index.md
   - Architecture: architecture.md
   - Configuration: configuration.md
-  - LLM Providers: llm-providers.md
   - Methodology: methodology.md
   - Running Experiments: experiments.md
   - API Reference:

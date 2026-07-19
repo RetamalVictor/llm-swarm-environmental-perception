@@ -12,18 +12,9 @@ dependencies = [
     "violet>=0.0.2",
     "violet-simulator>=0.2.4",
     "PyYAML>=6.0",
-    "python-dotenv>=1.1",
 ]
 
 [project.optional-dependencies]
-# Legacy LLM perception path (provider SDKs). Deleted in M3.
-llm = [
-    "google-generativeai>=0.8",
-    "openai>=2.6",
-    "httpx>=0.28",
-    "requests>=2.32",
-    "pillow>=11.3",
-]
 # Evaluation / metrics stack.
 eval = [
     "torch>=2.8",

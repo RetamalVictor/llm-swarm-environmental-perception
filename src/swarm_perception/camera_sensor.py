@@ -1,20 +1,19 @@
 """Camera sensor utilities for local perception and visualization."""
 
-import cv2
 import pygame as pg
 from typing import Any
 
-from swarm_perception.utils.paths import ASSETS_DIR
+from swarm_perception.world.background import Background
 
 
 class CameraSensor:
-    """Simulated onboard camera that crops the global background image."""
+    """Simulated onboard camera that crops the shared background image."""
 
     def __init__(
         self,
         agent: Any,
         coverage_side: int | float,
-        background_image: str,
+        background: Background,
         sensing_radius: int | None = None,
     ) -> None:
         """Initialize camera and drawing parameters.
@@ -22,12 +21,12 @@ class CameraSensor:
         Args:
             agent: Robot agent whose position defines the crop center.
             coverage_side: Width and height of the square observation window.
-            background_image: File name of the global map image in assets.
+            background: Shared load-once world image (one instance per run).
             sensing_radius: Optional communication/proximity radius for overlay.
         """
         self._agent = agent
         self.coverage_side = coverage_side
-        self.background_image = background_image
+        self._background = background
         self.sensing_radius = sensing_radius
         self._label_font = None
         # Scale label with sensing window so visual size follows config changes.
@@ -42,38 +41,17 @@ class CameraSensor:
         end_y = int(round(self._agent.pos.y + half_side))
         return start_x, start_y, end_x, end_y
 
-    def take_photo(self) -> Any:
-        """Capture and return the current local image crop.
-
-        The method clips the crop to image bounds, then appends center
-        coordinates to ``logs/camera_captures.txt`` for debugging.
+    def take_photo(self) -> tuple[Any, tuple[int, int, int, int]]:
+        """Capture the current local image crop and its ground-truth rect.
 
         Returns:
-            OpenCV image array for the visible patch around the robot.
+            ``(crop, rect)`` — a zero-copy array view of the visible patch
+            around the robot (BGR, same as the legacy behavior) and the
+            clipped rect ``(x1, y1, x2, y2)`` it covers in image pixels.
         """
-        img = cv2.imread(str(ASSETS_DIR / self.background_image))
-        img_h, img_w, _ = img.shape
-
-        # Crop using the same config-driven coverage square used for visualization.
-        start_x, start_y, end_x, end_y = self._coverage_bounds()
-
-        safe_start_x = max(0, start_x)
-        safe_start_y = max(0, start_y)
-        safe_end_x = min(img_w, end_x)
-        safe_end_y = min(img_h, end_y)
-
-        cropped_image = img[safe_start_y:safe_end_y, safe_start_x:safe_end_x]
-        # cv2.imwrite(f'robot_{self._agent.id}_{pg.time.get_ticks()}.png', cropped_image)
-        
-        # Log the capture coordinates to a file
-        log_file_path = ASSETS_DIR.parent / "logs" / "camera_captures.txt"
-        log_file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(log_file_path, "a", encoding="utf-8") as f:
-            center_x = (safe_start_x + safe_end_x) / 2
-            center_y = (safe_start_y + safe_end_y) / 2
-            f.write(f"{self._agent.id}, {center_x}, {center_y}\n")
-
-        return cropped_image
+        return self._background.crop(
+            (self._agent.pos.x, self._agent.pos.y), self.coverage_side
+        )
 
     def show_outline(self, color: tuple[int, int, int] = (0, 0, 0)) -> None:
         """Draw sensor overlay and robot id label on the active display surface.
