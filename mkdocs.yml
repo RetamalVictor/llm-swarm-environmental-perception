@@ -32,7 +32,6 @@ nav:
   - Home: index.md
   - Architecture: architecture.md
   - Configuration: configuration.md
-  - LLM Providers: llm-providers.md
   - Methodology: methodology.md
   - Running Experiments: experiments.md
   - API Reference:

@@ -12,4 +12,4 @@ ASSETS_DIR = SRC_DIR / "assets"
 CONFIG_PATH = PROJECT_ROOT / "configs"
 
 # No import-time side effects: output directories are created where the run
-# directory is created (ObservationLogger / future run logger), never on import.
+# directory is created (io.run_logger.RunLogger), never on import.

@@ -188,14 +188,18 @@ def build_jobs(
     return jobs
 
 
-def prepare_resolved_config(job: RunJob) -> Path:
+def prepare_job_config(job: RunJob) -> Path:
     """Materialize a run-specific config with seed and output directory.
+
+    The file is named ``job_config.yaml``: the simulation itself owns the
+    ``config_resolved.yaml`` and ``run_metadata.json`` names inside the run
+    directory, so the runner's artifacts must not clobber them.
 
     Args:
         job: Run specification to resolve.
 
     Returns:
-        Path to written ``config_resolved.yaml`` under this run directory.
+        Path to written ``job_config.yaml`` under this run directory.
     """
     cfg = load_yaml(job.config_path)
     cfg.setdefault("simulation", {})
@@ -207,7 +211,7 @@ def prepare_resolved_config(job: RunJob) -> Path:
     cfg["config"]["name"] = f"{base_name}_seed{job.seed:03d}"
 
     job.run_dir.mkdir(parents=True, exist_ok=True)
-    out_path = job.run_dir / "config_resolved.yaml"
+    out_path = job.run_dir / "job_config.yaml"
     with out_path.open("w", encoding="utf-8") as f:
         yaml.safe_dump(cfg, f, sort_keys=False)
     return out_path
@@ -226,8 +230,8 @@ def run_one(job: RunJob, repo_root: Path) -> RunResult:
     started = now_utc()
     started_iso = started.isoformat()
     log_path = job.run_dir / "run.log"
-    resolved_config = prepare_resolved_config(job)
-    command = [sys.executable, "-m", "swarm_perception", str(resolved_config)]
+    job_config = prepare_job_config(job)
+    command = [sys.executable, "-m", "swarm_perception", str(job_config)]
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
 
@@ -251,6 +255,13 @@ def run_one(job: RunJob, repo_root: Path) -> RunResult:
     except Exception as exc:  # noqa: BLE001
         error = str(exc)
 
+    # The simulation writes its artifacts directly into the run dir; the
+    # event log is the ground truth that a run actually produced output.
+    events_path = job.run_dir / "events.jsonl"
+    if status == "success" and not events_path.exists():
+        status = "failed"
+        error = f"events.jsonl not found in run dir: {job.run_dir}"
+
     finished = now_utc()
     finished_iso = finished.isoformat()
     duration = (finished - started).total_seconds()
@@ -264,16 +275,16 @@ def run_one(job: RunJob, repo_root: Path) -> RunResult:
         "returncode": returncode,
         "duration_sec": duration,
         "config_path": str(job.config_path),
-        "resolved_config_path": str(resolved_config),
+        "job_config_path": str(job_config),
         "command": command,
         "started_at_utc": started_iso,
         "finished_at_utc": finished_iso,
         "log_path": str(log_path),
+        "events_path": str(events_path),
         "error": error,
     }
-    robots_jsons = sorted(job.run_dir.rglob("robots.json"))
-    metadata["robots_json_paths"] = [str(p) for p in robots_jsons]
-    with (job.run_dir / "run_metadata.json").open("w", encoding="utf-8") as f:
+    # Runner-level metadata is batch_meta.json; run_metadata.json belongs to the sim.
+    with (job.run_dir / "batch_meta.json").open("w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
     return RunResult(
