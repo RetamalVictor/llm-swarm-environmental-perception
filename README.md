@@ -85,6 +85,33 @@ Each run directory (`output/<name>-<timestamp>/`) contains:
 Determinism is enforced in CI: two runs with the same config and seed must
 produce byte-identical `events.jsonl`.
 
+## Perception encoder
+
+Captured crops are embedded by a frozen encoder
+(`src/swarm_perception/perception/`), installed via the `perception` extra
+(`uv sync --extra perception`; the `eval` extra includes it). The contract:
+
+- **Model**: OpenCLIP ViT-B/32 with the `laion2b_s34b_b79k` pretrained
+  weights, pinned as constants in `perception/encoder.py`. Changing either
+  string invalidates every stored embedding and the golden test.
+- **Transforms**: taken from `open_clip.create_model_and_transforms`, never
+  hand-rolled — preprocessing is exactly what the weights were trained with.
+- **Color**: the codebase is BGR (OpenCV) everywhere upstream; the single
+  BGR→RGB conversion lives in `perception/crops.py`. Edge-clipped crops are
+  padded to the full coverage square with the background's mean color —
+  never resized — anchored so the output stays geometrically aligned with
+  the world; the logged rect is exactly what `Background.crop` reported.
+- **Embeddings**: float32 `(N, 512)`, L2-normalized in fp32, computed with
+  `model.eval()` under `torch.no_grad()` on CPU (the reference platform).
+- **Batch order**: each capture epoch is embedded as one batch in sorted
+  robot-id order; batch composition is part of the determinism contract.
+- **Text tower**: `embed_text` is debug-only and never used in any reported
+  metric.
+
+A golden test (`tests/test_encoder_golden.py`) locks the whole pipeline to
+committed fixture crops and embeddings; it is skipped when the `perception`
+extra is not installed.
+
 ## Configuration
 
 Every YAML key is documented inline in `examples/example1.yaml`. Notes:
