@@ -38,6 +38,9 @@ def _emit_one_of_each(logger) -> None:
         sender=2,
         merge_method="deterministic",
         inbox_policy="within_budget",
+        bytes_size=1644,
+        k_sent=3,
+        dropped=False,
     )
 
 
@@ -54,6 +57,11 @@ def test_events_are_one_json_object_per_line_in_order(logger) -> None:
 
     events = [json.loads(line) for line in raw_lines]
     assert [e["type"] for e in events] == ["capture", "memory", "comm"]
+
+    comm = events[2]
+    assert comm["bytes"] == 1644
+    assert comm["k_sent"] == 3
+    assert comm["dropped"] is False
 
     capture = events[0]
     assert capture["key"] == [1, 0, 0]  # [epoch, robot, crop_idx]

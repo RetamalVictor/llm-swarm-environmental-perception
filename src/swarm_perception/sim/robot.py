@@ -157,6 +157,11 @@ class Robot(Agent):
                 sender=sender_id,
                 merge_method="deterministic",
                 inbox_policy="within_budget",
+                # Interim dict records carry no payload; the channel byte
+                # model prices messages once embeddings are on the wire.
+                bytes_size=0,
+                k_sent=len(records),
+                dropped=False,
             )
             self.inbox_merges_this_epoch += 1
             return
@@ -171,6 +176,9 @@ class Robot(Agent):
                 sender=sender_id,
                 merge_method="deterministic",
                 inbox_policy="deterministic_after_budget",
+                bytes_size=0,
+                k_sent=len(records),
+                dropped=False,
             )
             return
         # "drop": over budget for this epoch; discard the oldest broadcast.

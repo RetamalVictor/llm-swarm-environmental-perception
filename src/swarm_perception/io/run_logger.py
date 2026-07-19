@@ -26,7 +26,15 @@ Event vocabulary (the contract downstream eval consumes):
   ...]}``. One robot's full memory key set at its capture epoch; ``keys`` is
   sorted in tuple order.
 - ``comm`` — ``{type, receiver_tick, sender_tick, epoch, receiver, sender,
-  merge_method, inbox_policy}``. One successfully merged peer message.
+  merge_method, inbox_policy, bytes, k_sent, dropped}``. One transmitted peer
+  message at the moment its fate is decided. ``bytes`` prices the message per
+  the byte model in :mod:`swarm_perception.sim.channel` (the single byte-model
+  authority); ``k_sent`` counts records on the wire. Messages that never help
+  the receiver still log their cost with ``dropped: true`` and an
+  ``inbox_policy`` naming the fate (``channel_drop``, ``inbox_overflow``,
+  ``drop_after_budget``); merged messages log ``within_budget`` or
+  ``deterministic_after_budget``. Summing ``bytes`` over a robot's comm
+  events yields its cumulative spent channel bytes.
 - ``frame`` — ``{type, tick}``. A synchronized full-frame capture point (the
   PNG itself exists only when a display surface does).
 
@@ -217,8 +225,29 @@ class RunLogger:
         sender: int,
         merge_method: str,
         inbox_policy: str,
+        bytes_size: int,
+        k_sent: int,
+        dropped: bool,
     ) -> None:
-        """Log one successfully merged peer message."""
+        """Log one transmitted peer message at the moment its fate is decided.
+
+        Args:
+            receiver_tick: Receiver tick when the fate resolved (for channel
+                drops, the tick delivery would have happened).
+            sender_tick: Sender tick when the broadcast was emitted.
+            epoch: Capture epoch the event belongs to.
+            receiver: Receiver robot identifier.
+            sender: Sender robot identifier.
+            merge_method: ``"deterministic"`` for merged messages, ``"none"``
+                for messages that were never merged.
+            inbox_policy: The fate: ``within_budget`` /
+                ``deterministic_after_budget`` for merges; ``channel_drop`` /
+                ``inbox_overflow`` / ``drop_after_budget`` for losses.
+            bytes_size: Spent channel bytes per the byte model in
+                :mod:`swarm_perception.sim.channel` (emitted as ``bytes``).
+            k_sent: Number of records on the wire.
+            dropped: True when the message never merged into the receiver.
+        """
         self._emit(
             {
                 "type": "comm",
@@ -229,6 +258,9 @@ class RunLogger:
                 "sender": int(sender),
                 "merge_method": str(merge_method),
                 "inbox_policy": str(inbox_policy),
+                "bytes": int(bytes_size),
+                "k_sent": int(k_sent),
+                "dropped": bool(dropped),
             }
         )
 
