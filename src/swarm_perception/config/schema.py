@@ -8,12 +8,79 @@ time. YAML reading lives in :mod:`swarm_perception.config.loader`.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from typing import Any
 
 
 class ConfigError(ValueError):
     """Raised for missing files, malformed YAML, unknown keys, or invalid values."""
+
+
+#: Valid ``robot.movement_policy`` values (implementations live in
+#: :mod:`swarm_perception.sim.policies`).
+MOVEMENT_POLICIES = frozenset({"ballistic", "crw", "levy", "boustrophedon"})
+
+# Per-policy tunables accepted in ``robot.policy_params`` and their defaults:
+#   ballistic     — (none)
+#   crw           — sigma: 8.0 (per-tick heading noise std, degrees; >= 0)
+#                   persistence: 0.7 (directional memory in [0, 1]; 1 = straight)
+#   levy          — alpha: 1.5 (Pareto tail exponent; > 0)
+#                   clamp: 300.0 (max flight length, pixels; > 0)
+#   boustrophedon — lane_spacing: robot.coverage_side (distance between sweep
+#                   lanes, pixels; > 0; the default gives gap-free camera coverage)
+# ``None`` marks a default resolved from another field at validation time.
+_POLICY_PARAM_DEFAULTS: dict[str, dict[str, float | None]] = {
+    "ballistic": {},
+    "crw": {"sigma": 8.0, "persistence": 0.7},
+    "levy": {"alpha": 1.5, "clamp": 300.0},
+    "boustrophedon": {"lane_spacing": None},
+}
+
+
+def _validate_policy_params(policy: str, raw: Any, coverage_side: float) -> dict[str, float]:
+    """Resolve ``robot.policy_params`` against the selected policy's spec.
+
+    Unknown parameter names are rejected, values must be numeric, and
+    documented defaults fill any omitted parameter. Returns the fully
+    resolved mapping stored back on the config.
+    """
+    if raw is None:
+        raw = {}
+    if not isinstance(raw, dict):
+        raise ConfigError(f"robot.policy_params must be a mapping, got {type(raw).__name__}")
+    defaults = dict(_POLICY_PARAM_DEFAULTS[policy])
+    if "lane_spacing" in defaults and defaults["lane_spacing"] is None:
+        defaults["lane_spacing"] = float(coverage_side)
+    unknown = sorted(set(raw) - set(defaults))
+    if unknown:
+        raise ConfigError(
+            f"robot.policy_params for policy {policy!r} has unknown key(s) {unknown}; "
+            f"valid keys: {sorted(defaults)}"
+        )
+    resolved: dict[str, float] = {}
+    for name, default in defaults.items():
+        value = raw.get(name, default)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ConfigError(
+                f"robot.policy_params.{name} must be a number, got {value!r}"
+            )
+        resolved[name] = float(value)
+    if policy == "crw":
+        if resolved["sigma"] < 0:
+            raise ConfigError(f"robot.policy_params.sigma must be >= 0, got {resolved['sigma']}")
+        if not 0.0 <= resolved["persistence"] <= 1.0:
+            raise ConfigError(
+                f"robot.policy_params.persistence must be in [0, 1], got {resolved['persistence']}"
+            )
+    elif policy == "levy":
+        for name in ("alpha", "clamp"):
+            if resolved[name] <= 0:
+                raise ConfigError(f"robot.policy_params.{name} must be > 0, got {resolved[name]}")
+    elif policy == "boustrophedon" and resolved["lane_spacing"] <= 0:
+        raise ConfigError(
+            f"robot.policy_params.lane_spacing must be > 0, got {resolved['lane_spacing']}"
+        )
+    return resolved
 
 
 @dataclass(frozen=True)
@@ -63,6 +130,8 @@ class RobotCfg:
     memory_cap: int = 40
     max_inbox_merges_per_epoch: int = 1
     inbox_merge_after_budget: str = "drop"
+    movement_policy: str = "ballistic"
+    policy_params: dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         # Normalize the two fields the old code cleaned at read time.
@@ -83,6 +152,17 @@ class RobotCfg:
                 f"robot.inbox_merge_after_budget must be one of {sorted(allowed_policies)}, "
                 f"got {self.inbox_merge_after_budget!r}"
             )
+        object.__setattr__(self, "movement_policy", str(self.movement_policy).strip().lower())
+        if self.movement_policy not in MOVEMENT_POLICIES:
+            raise ConfigError(
+                f"robot.movement_policy must be one of {sorted(MOVEMENT_POLICIES)}, "
+                f"got {self.movement_policy!r}"
+            )
+        object.__setattr__(
+            self,
+            "policy_params",
+            _validate_policy_params(self.movement_policy, self.policy_params, self.coverage_side),
+        )
 
 
 @dataclass(frozen=True)
