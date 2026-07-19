@@ -127,3 +127,51 @@ def test_invalid_memory_cap_raises(tmp_path: Path) -> None:
 def test_missing_file_raises_config_error(tmp_path: Path) -> None:
     with pytest.raises(ConfigError, match="not found"):
         load_config(tmp_path / "nope.yaml")
+
+
+def test_perception_cfg_validation() -> None:
+    from swarm_perception.config import PerceptionCfg
+
+    assert PerceptionCfg().model == "stub"
+    assert PerceptionCfg(model="CLIP").model == "clip"  # normalized
+    with pytest.raises(ConfigError, match="perception.model"):
+        PerceptionCfg(model="resnet")
+    with pytest.raises(ConfigError, match="batch_size"):
+        PerceptionCfg(batch_size=0)
+
+
+def test_fusion_cfg_validation() -> None:
+    from swarm_perception.config import FusionCfg
+
+    assert FusionCfg().tau_dedup == 0.95
+    with pytest.raises(ConfigError, match="tau_dedup"):
+        FusionCfg(tau_dedup=0.0)
+    with pytest.raises(ConfigError, match="tau_dedup"):
+        FusionCfg(tau_dedup=1.5)
+    with pytest.raises(ConfigError, match="memory_cap"):
+        FusionCfg(memory_cap=0)
+
+
+def test_comms_cfg_validation() -> None:
+    from swarm_perception.config import CommsCfg
+
+    cfg = CommsCfg(sender_policy="Most_Recent", quantization="INT8", over_budget="Drop")
+    assert (cfg.sender_policy, cfg.quantization, cfg.over_budget) == (
+        "most_recent",
+        "int8",
+        "drop",
+    )
+    with pytest.raises(ConfigError, match="comms.k"):
+        CommsCfg(k=0)
+    with pytest.raises(ConfigError, match="drop_p"):
+        CommsCfg(drop_p=1.5)
+    with pytest.raises(ConfigError, match="delay_ticks"):
+        CommsCfg(delay_ticks=-1)
+    with pytest.raises(ConfigError, match="sender_policy"):
+        CommsCfg(sender_policy="newest")
+    with pytest.raises(ConfigError, match="quantization"):
+        CommsCfg(quantization="int4")
+    with pytest.raises(ConfigError, match="over_budget"):
+        CommsCfg(over_budget="explode")
+    with pytest.raises(ConfigError, match="max_inbox_merges_per_epoch"):
+        CommsCfg(max_inbox_merges_per_epoch=-1)

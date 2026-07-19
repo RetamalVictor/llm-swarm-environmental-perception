@@ -83,11 +83,90 @@ def _validate_policy_params(policy: str, raw: Any, coverage_side: float) -> dict
     return resolved
 
 
+def _enum(section: str, name: str, value: str, allowed: frozenset[str]) -> str:
+    """Normalize a string enum key and reject values outside ``allowed``."""
+    normalized = str(value).strip().lower()
+    if normalized not in allowed:
+        raise ConfigError(
+            f"{section}.{name} must be one of {sorted(allowed)}, got {value!r}"
+        )
+    return normalized
+
+
 @dataclass(frozen=True)
 class RunCfg:
     """Top-level run metadata (the YAML ``config:`` section)."""
 
     name: str = "unnamed"
+
+
+@dataclass(frozen=True)
+class PerceptionCfg:
+    """Encoder selection (the YAML ``perception:`` section).
+
+    ``model`` picks the epoch encoder: ``"stub"`` derives deterministic
+    pure-numpy embeddings from record keys (the CI path), ``"clip"`` runs the
+    pinned OpenCLIP encoder (needs the ``perception`` extra).
+    """
+
+    model: str = "stub"
+    device: str = "cpu"
+    batch_size: int = 64
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "model", _enum("perception", "model", self.model, frozenset({"stub", "clip"}))
+        )
+        if self.batch_size <= 0:
+            raise ConfigError(f"perception.batch_size must be > 0, got {self.batch_size}")
+
+
+@dataclass(frozen=True)
+class FusionCfg:
+    """Memory-merge parameters (the YAML ``fusion:`` section, D6)."""
+
+    tau_dedup: float = 0.95
+    memory_cap: int = 40
+
+    def __post_init__(self) -> None:
+        if not 0.0 < self.tau_dedup <= 1.0:
+            raise ConfigError(f"fusion.tau_dedup must be in (0, 1], got {self.tau_dedup}")
+        if self.memory_cap <= 0:
+            raise ConfigError(f"fusion.memory_cap must be > 0, got {self.memory_cap}")
+
+
+@dataclass(frozen=True)
+class CommsCfg:
+    """Budgeted channel model (the YAML ``comms:`` section, D7)."""
+
+    enabled: bool = True
+    k: int = 4
+    sender_policy: str = "most_recent"
+    drop_p: float = 0.0
+    delay_ticks: int = 0
+    quantization: str = "none"
+    share_visitation: bool = False
+    max_inbox_merges_per_epoch: int = 1
+    over_budget: str = "drop"
+
+    def __post_init__(self) -> None:
+        for name, allowed in (
+            ("sender_policy", frozenset({"most_recent", "coverage_greedy"})),
+            ("quantization", frozenset({"none", "fp16", "int8"})),
+            ("over_budget", frozenset({"drop", "deterministic"})),
+        ):
+            object.__setattr__(self, name, _enum("comms", name, getattr(self, name), allowed))
+        if self.k <= 0:
+            raise ConfigError(f"comms.k must be > 0, got {self.k}")
+        if not 0.0 <= self.drop_p <= 1.0:
+            raise ConfigError(f"comms.drop_p must be in [0, 1], got {self.drop_p}")
+        if self.delay_ticks < 0:
+            raise ConfigError(f"comms.delay_ticks must be >= 0, got {self.delay_ticks}")
+        if self.max_inbox_merges_per_epoch < 0:
+            raise ConfigError(
+                "comms.max_inbox_merges_per_epoch must be >= 0, "
+                f"got {self.max_inbox_merges_per_epoch}"
+            )
 
 
 @dataclass(frozen=True)
