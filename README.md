@@ -1,69 +1,103 @@
-# Environmental Perception in a Swarm of Conversational Agents
+# Environmental Perception in Robot Swarms
 
-The main workflow is centered on three folders:
-- `src/`: simulation runtime and agent logic
-- `experiments/`: repeated runs + evaluation/plots
-- `pre_assets/`: environment and ground-truth generation
+A deterministic simulator for studying how a swarm of simple mobile robots
+collectively perceives a 2D environment. Robots capture local image crops at
+synchronized epochs, keep a bounded memory of what they have seen, and exchange
+memories when they come within communication range. Every world is procedurally
+generated together with exact, pixel-level ground truth, and every run is fully
+seeded: the same config and seed reproduce the event log byte for byte.
 
-## What Each Core Module Does
+## How a run works
 
-- `src/swarm_perception/cli.py`: the `swarm-run` entrypoint for one simulation run (config path plus `--headless`, `--seed`, `--output-dir` overrides).
-- `src/swarm_perception/sim/`: simulation engine, robot control loop, and actuator.
-- `src/swarm_perception/camera_sensor.py`: takes local image crops from the environment image.
-- `src/swarm_perception/io/run_logger.py`: appends per-run `events.jsonl` and writes reproducibility artifacts.
-- `experiments/run_experiments.py`: runs paired communication/non-communication experiments across seeds.
-- `experiments/metrics/plot_cosine_experiment_averages.py`: computes recall/precision/F1 against ground truth and generates plots.
-- `pre_assets/scripts/generate_background.py`: creates synthetic backgrounds by composing object PNGs.
-- `pre_assets/ground_truth/build_ground_truth.py`: builds ground-truth fact JSON using the same LLM family.
+1. Robots move continuously through the world (bounce-off-edges motion).
+2. Every capture epoch (`robot.capture_frequency` seconds of sim time), all
+   robots simultaneously photograph the square patch under them
+   (`robot.coverage_side` pixels). Captures are discrete and synchronized on
+   purpose — each one becomes a record with the globally unique key
+   `(epoch, robot, crop_index)`, which makes memories mergeable and runs
+   replayable.
+3. Each robot stores records in its memory, capped at `robot.memory_cap`.
+4. When two robots are within `robot.neighbor_radius`, they exchange records
+   through a bounded inbox with a per-epoch merge budget.
+5. Everything observable is appended to `events.jsonl`: every capture with its
+   exact crop rectangle, every memory state, every merge.
 
-## Quick Start
+In the windowed mode you can watch this live: squares are camera footprints
+(flashing yellow on a capture epoch), yellow circles are communication radii.
 
-### 1) Setup
+## Repository layout
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then from the repo root:
+- `src/swarm_perception/cli.py` — the `swarm-run` entrypoint (config path plus
+  `--headless`, `--seed`, `--output-dir` overrides).
+- `src/swarm_perception/sim/` — simulation engine, robot control loop, actuator.
+- `src/swarm_perception/world/` — world generation (`swarm-gen`), background
+  image access, layout ground truth with visibility queries.
+- `src/swarm_perception/io/run_logger.py` — append-only `events.jsonl` plus
+  per-run reproducibility artifacts.
+- `src/swarm_perception/config/` — typed, strictly validated YAML configs.
+- `experiments/` — batch runners for repeated seeded experiments.
+- `legacy/` — quarantined artifacts from an earlier iteration of the project;
+  not used by the current pipeline.
+
+## Quick start
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
 
 ```bash
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
-```
+uv sync --extra dev
 
-`uv venv` creates a `.venv` using Python 3.12 (see `.python-version`).
-
-Create `.env` in the repository root (provider-dependent):
-
-```bash
-GOOGLE_API_KEY=your_key_here    # gemini (default in many experiment configs)
-OPENAI_API_KEY=your_key_here    # openai or vLLM
-```
-
-### 2) Run a Single Simulation
-
-From repo root with the example config:
-
-```bash
+# Headless run: writes output/<name>-<timestamp>/ with the full event log
 uv run swarm-run examples/example1.yaml
-```
 
-Or use experiment configs:
-
-```bash
+# Communication vs no-communication baselines
 uv run swarm-run experiments/configs/bg2500-big_comm.yaml
-```
-
-Try non-communication baseline:
-
-```bash
 uv run swarm-run experiments/configs/bg2500-big_noncomm.yaml
 ```
 
+To watch a run in a window, set `simulation.headless: false` in your config
+(and pick a `simulation.width`/`height` that fits your screen).
+
+## Generating worlds
+
+`swarm-gen` composes RGBA object sprites onto a base texture and writes the
+world image together with its exact layout:
+
+```bash
+uv run swarm-gen --seed 7 --pngs pre_assets/pngs/20 --num-objects 12 \
+  --base pre_assets/background/background.png --out output/worlds
+```
+
+This produces `background-<set>-<n>obj-seed<seed>.png` and a matching
+`.layout.json` holding, for every placed object: its label, bounding box,
+center, and a run-length-encoded alpha mask. The same seed reproduces both
+files byte for byte. To simulate on a generated world, copy it into
+`src/assets/` and point `simulation.background_image` at it.
+
+## Run outputs
+
+Each run directory (`output/<name>-<timestamp>/`) contains:
+
+- `events.jsonl` — append-only log of `capture`, `memory`, and `comm` events;
+  compact sorted-key JSON, LF line endings, no wall-clock timestamps.
+- `config_resolved.yaml` — the exact configuration the run used.
+- `run_metadata.json` — seed, package version, platform, git commit.
+
+Determinism is enforced in CI: two runs with the same config and seed must
+produce byte-identical `events.jsonl`.
+
 ## Configuration
 
-Every YAML key is documented inline in `examples/example1.yaml`.
+Every YAML key is documented inline in `examples/example1.yaml`. Notes:
 
-## Reproduce Core Experiment Results
+- `robot.communication` toggles peer exchange entirely
+  (`*_comm.yaml` / `*_noncomm.yaml` config pairs).
+- `robot.memory_cap` bounds how many records a robot may hold.
+- `robot.max_inbox_merges_per_epoch` and `robot.inbox_merge_after_budget`
+  (`drop` or `deterministic`) control the merge budget.
+- `simulation.fps` only derives the capture cadence; headless runs are never
+  wall-clock paced.
 
-### 1) Run repeated experiments
+## Batch experiments
 
 ```bash
 python experiments/run_experiments.py \
@@ -73,67 +107,15 @@ python experiments/run_experiments.py \
   --max-workers 1
 ```
 
-This creates a new batch directory under `experiments/runs/` with per-run logs and summaries.
+Creates a batch directory under `experiments/runs/` with per-run logs and a
+batch summary.
 
-### 2) Compute metrics and plots
-
-Replace `<batch_id>` with the generated folder name (for example `batch_20260603_104500`):
-
-```bash
-python experiments/metrics/plot_cosine_experiment_averages.py \
-  --batch-summary-csv experiments/runs/<batch_id>/batch_summary.csv \
-  --ground-truth-json experiments/metrics/ground_truth_148.json \
-  --threshold 0.60 \
-  --model all-MiniLM-L6-v2 \
-  --out-dir experiments/metrics/outputs
-```
-
-## Generate Assets and Ground Truth
-
-### Background generation (`pre_assets`)
-
-`pre_assets/scripts/generate_background.py` uses constants at the top of the file (`PNGS_DIR`, `PNG_SIZES`, `OUTPUT_WIDTH`, etc.).  
-After adjusting those values:
+## Development
 
 ```bash
-python3 pre_assets/scripts/generate_background.py
+uv run pytest -q        # full suite
+uv run ruff check .     # lint
+uv run mypy src/        # types
 ```
 
-If you use a newly generated background in simulation, copy it to `src/assets/` and update `background_image` in your YAML config.
-
-### Ground-truth generation (`pre_assets`)
-
-`pre_assets/ground_truth/build_ground_truth.py` is configured via top-level constants (`CONFIG_PATH`, `PNG_DIR`, `OUTPUT_PATH`, etc.).  
-After setting those values:
-
-```bash
-python pre_assets/ground_truth/build_ground_truth.py
-```
-
-## Outputs You Should Expect
-
-- Single run outputs:
-  - `output/<config_name>_<timestamp>/robots.json`
-  - Optional: `frames/`, `robot_crops/`, `communication_merges.jsonl`
-- Batch experiment outputs:
-  - `experiments/runs/<batch_id>/batch_summary.csv`
-  - `experiments/runs/<batch_id>/batch_summary.json`
-  - Per-seed folders with `run.log`, `run_metadata.json`, `config_resolved.yaml`
-- Metrics outputs:
-  - `experiments/metrics/outputs/per_robot_per_snapshot_cosine_metrics.csv`
-  - `experiments/metrics/outputs/per_run_final_summary_cosine_metrics.csv`
-  - `experiments/metrics/outputs/cosine_knowledge_progression_dashboard.png`
-  - `experiments/metrics/outputs/cosine_metrics_progression_grid.png`
-
-## Configuration Notes
-
-- `*_comm.yaml` enables peer communication (`robot.communication: true`).
-- `*_noncomm.yaml` disables peer communication (`robot.communication: false`).
-- `bg2500-big_*` uses larger sensing/communication radius (`coverage_side` and `neighbor_radius` 200).
-- `bg2500-small_*` uses smaller sensing/communication radius (150).
-- Ready-made samples live in `examples/`.
-
-## Troubleshooting
-
-- **No config passed**: always pass a config path to `swarm-run`.
-- **Background not found**: simulation reads from `src/assets/`; ensure the YAML `background_image` file exists there.
+All three run on every push and pull request.
