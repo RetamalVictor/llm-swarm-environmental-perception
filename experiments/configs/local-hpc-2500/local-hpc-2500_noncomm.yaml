@@ -37,7 +37,6 @@ llm:
   temperature: 0.05 # Sampling temperature for generation.
   max_output_tokens: 220 # Max tokens returned per LLM call.
   base_url: http://localhost:8080/v1 # vLLM OpenAI-compatible endpoint (port 8080).
-  request_timeout_seconds: 600 # Per-request HTTP timeout in seconds.
   api_key_env: "OPENAI_API_KEY" # vLLM often accepts any value; set OPENAI_API_KEY=EMPTY in .env if needed.
   prompts:
     photo_analysis_self_learning: |

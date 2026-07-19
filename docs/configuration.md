@@ -1,8 +1,8 @@
 # Configuration Reference
 
-Simulation behavior is controlled by a single YAML file passed to `src/main.py`. The loader (`utils.config.SwarmConfig`) converts nested keys into dot-access namespaces (for example, `config.robot.coverage_side`).
+Simulation behavior is controlled by a single YAML file passed to `swarm-run` (or `python -m swarm_perception`). The loader (`swarm_perception.utils.config.SwarmConfig`) converts nested keys into dot-access namespaces (for example, `config.robot.coverage_side`).
 
-Start from `_collections/configs/config-template.yaml` or the ready-made samples in `examples/`.
+Start from the ready-made samples in `examples/`.
 
 ## Top-Level Structure
 
@@ -159,7 +159,6 @@ Ollama does not require an API key.
 
 | Path | Purpose |
 |------|---------|
-| `_collections/configs/config-template.yaml` | Annotated template with all common keys |
 | `examples/example1.yaml` | Ollama sample |
 | `examples/example1_vllm.yaml` | vLLM sample |
 | `examples/example1_gemini.yaml` | Gemini sample |

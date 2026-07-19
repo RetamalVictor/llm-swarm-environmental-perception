@@ -28,7 +28,7 @@ flowchart TB
 | `llm/providers/ollama.py` | Local Ollama `/api/generate` HTTP endpoint. |
 | `llm/providers/vllm.py` | Async httpx client for vLLM's OpenAI-compatible `/v1/chat/completions`. |
 
-Legacy modules `llm/llm_api_gemini.py` and `llm/llm_api_local.py` are deprecated. Use `llm.factory.create_api_manager` instead.
+Use `swarm_perception.llm.factory.create_api_manager` to construct a provider-backed manager.
 
 ### Request flow
 

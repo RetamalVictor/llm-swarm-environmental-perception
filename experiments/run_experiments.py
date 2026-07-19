@@ -227,7 +227,7 @@ def run_one(job: RunJob, repo_root: Path) -> RunResult:
     started_iso = started.isoformat()
     log_path = job.run_dir / "run.log"
     resolved_config = prepare_resolved_config(job)
-    command = [sys.executable, str(repo_root / "src/main.py"), str(resolved_config)]
+    command = [sys.executable, "-m", "swarm_perception", str(resolved_config)]
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
 
