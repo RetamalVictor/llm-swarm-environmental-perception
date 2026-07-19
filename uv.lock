@@ -1787,6 +1787,7 @@ source = { editable = "." }
 dependencies = [
     { name = "numpy" },
     { name = "opencv-python" },
+    { name = "pillow" },
     { name = "pygame" },
     { name = "pyyaml" },
     { name = "violet" },
@@ -1820,6 +1821,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.2" },
     { name = "opencv-python", specifier = ">=4.12" },
     { name = "pandas", marker = "extra == 'eval'", specifier = ">=3.0" },
+    { name = "pillow", specifier = ">=11.3" },
     { name = "pygame", specifier = ">=2.6" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pyyaml", specifier = ">=6.0" },
