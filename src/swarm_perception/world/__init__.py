@@ -1,1 +1,1 @@
-"""World assets: deterministic generation and exact layout ground truth."""
+"""World assets: background image, layout ground truth, and generation."""
