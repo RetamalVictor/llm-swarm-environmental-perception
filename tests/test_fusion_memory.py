@@ -352,3 +352,28 @@ def test_add_and_accessors() -> None:
     assert [r.key for r in mem] == [(0, 0, 0), (0, 0, 1)]
     assert mem.tau_dedup == 0.9
     assert mem.memory_cap == 4
+
+
+def test_k_center_select_is_deterministic_and_order_free() -> None:
+    from swarm_perception.fusion import k_center_select
+
+    # Four well-separated directions plus one near-duplicate of the first.
+    recs = [
+        record((0, 0, 0), unit(1.0)),
+        record((0, 1, 0), unit(0.999, 0.045)),  # nearly parallel to (0, 0, 0)
+        record((1, 0, 0), unit(0.0, 1.0)),
+        record((1, 1, 0), unit(0.0, 0.0, 1.0)),
+        record((2, 0, 0), unit(-1.0)),
+    ]
+    picked = k_center_select(recs, 3)
+    keys = [r.key for r in picked]
+    assert keys == sorted(keys), "selection must come back in key order"
+    # The near-duplicate never displaces a well-separated direction.
+    assert (0, 1, 0) not in keys
+    assert (0, 0, 0) in keys
+
+    permuted = list(reversed(recs))
+    assert [r.key for r in k_center_select(permuted, 3)] == keys
+
+    # count >= n returns all records, key-sorted.
+    assert [r.key for r in k_center_select(permuted, 10)] == sorted(r.key for r in recs)

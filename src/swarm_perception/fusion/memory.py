@@ -41,7 +41,7 @@ Pure numpy; no torch.
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 
 import numpy as np
 
@@ -148,21 +148,30 @@ def _greedy_cosine_dedup(
     return merged
 
 
-def _k_center_cap(records: list[MemoryRecord], memory_cap: int) -> list[MemoryRecord]:
-    """Step (c): greedy k-center over cosine distance on key-sorted records."""
-    if len(records) <= memory_cap:
-        return records
-    embeddings = np.stack([r.embedding for r in records]).astype(np.float64)
+def k_center_select(records: Sequence[MemoryRecord], count: int) -> list[MemoryRecord]:
+    """Greedy k-center selection over cosine distance (step (c) and D7 senders).
+
+    Deterministic: records are first sorted by key, the seed is the record
+    with the smallest key, then the selection repeatedly adds the record
+    maximizing the min distance to the selected set, breaking distance ties
+    (absolute tolerance 1e-6) by smallest key. Returns the selected records
+    in key order. Shared by the memory cap (step (c)) and the channel's
+    ``coverage_greedy`` sender policy, so both spread selections identically.
+    """
+    ordered = sorted(records, key=lambda r: r.key)
+    if len(ordered) <= count:
+        return ordered
+    embeddings = np.stack([r.embedding for r in ordered]).astype(np.float64)
     distance = 1.0 - embeddings @ embeddings.T
 
-    chosen = np.zeros(len(records), dtype=bool)
+    chosen = np.zeros(len(ordered), dtype=bool)
     chosen[0] = True  # seed: the record with the smallest key
     selected = [0]
     min_dist = distance[0].copy()
-    while len(selected) < memory_cap:
+    while len(selected) < count:
         best = -1
         best_dist = -np.inf
-        for i in range(len(records)):  # key order: smallest key wins ties
+        for i in range(len(ordered)):  # key order: smallest key wins ties
             if chosen[i]:
                 continue
             if best < 0 or min_dist[i] > best_dist + _TIE_TOLERANCE:
@@ -171,7 +180,7 @@ def _k_center_cap(records: list[MemoryRecord], memory_cap: int) -> list[MemoryRe
         selected.append(best)
         chosen[best] = True
         min_dist = np.minimum(min_dist, distance[best])
-    return [records[i] for i in sorted(selected)]
+    return [ordered[i] for i in sorted(selected)]
 
 
 def _canonical_records(
@@ -183,7 +192,7 @@ def _canonical_records(
     if len(dims) > 1:
         raise ValueError(f"embedding dims differ across records: {sorted(dims)}")
     deduped = _greedy_cosine_dedup(survivors, tau_dedup)
-    return tuple(_k_center_cap(deduped, memory_cap))
+    return tuple(k_center_select(deduped, memory_cap))
 
 
 class SetMemory:
