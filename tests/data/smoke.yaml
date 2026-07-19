@@ -13,6 +13,7 @@ simulation:
   seed: 0
 
 robot:
+  movement_policy: ballistic # Motion pattern: "ballistic", "crw", "levy", or "boustrophedon"; tunables go in robot.policy_params.
   linear_speed: 2.3
   angular_velocity: 5
   coverage_side: 150
