@@ -370,7 +370,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--ground-truth-json",
         type=Path,
-        default=Path("experiments/metrics/ground_truth_148.json"),
+        default=Path("legacy/ground_truth_148.json"),
         help="Path to ground truth facts JSON list.",
     )
     parser.add_argument(
