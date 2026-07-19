@@ -12,9 +12,9 @@ class CameraSensor:
     def __init__(
         self,
         agent: Any,
-        coverage_side: int | float,
+        coverage_side: float,
         background: Background,
-        sensing_radius: int | None = None,
+        sensing_radius: float | None = None,
     ) -> None:
         """Initialize camera and drawing parameters.
 
@@ -28,7 +28,7 @@ class CameraSensor:
         self.coverage_side = coverage_side
         self._background = background
         self.sensing_radius = sensing_radius
-        self._label_font = None
+        self._label_font: pg.font.Font | None = None
         # Scale label with sensing window so visual size follows config changes.
         self._label_font_size = max(16, int(self.coverage_side * 0.25))
 

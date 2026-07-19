@@ -12,6 +12,7 @@ import dataclasses
 import sys
 
 from swarm_perception.config import Config, ConfigError, load_config
+from swarm_perception.logging_setup import setup_logging
 from swarm_perception.sim.engine import Simulation, configure_runtime_mode
 from swarm_perception.sim.robot import Robot
 from swarm_perception.utils.paths import ASSETS_DIR
@@ -46,6 +47,13 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         metavar="PATH",
         help="use PATH as the run directory (overrides simulation.output_dir)",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="increase log verbosity (-v: INFO, -vv: DEBUG; default: WARNING)",
+    )
     return parser.parse_args(argv)
 
 
@@ -73,6 +81,7 @@ def main(argv: list[str] | None = None) -> None:
         SystemExit: With code 1 when the config cannot be loaded.
     """
     args = _parse_args(argv)
+    setup_logging(args.verbose)
     try:
         cfg = _apply_overrides(load_config(args.config), args)
     except ConfigError as error:

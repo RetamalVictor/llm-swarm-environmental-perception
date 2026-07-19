@@ -1,5 +1,6 @@
-from __future__ import annotations
 """Evaluate swarm observation quality against ground truth using cosine metrics."""
+
+from __future__ import annotations
 
 import argparse
 import csv

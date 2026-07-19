@@ -14,6 +14,7 @@ import random
 from collections import deque
 from typing import Any
 
+from pygame import Surface
 from vi import Agent, HeadlessSimulation
 
 from swarm_perception.camera_sensor import CameraSensor
@@ -37,7 +38,7 @@ class Robot(Agent):
 
     def __init__(
         self,
-        images: list[str],
+        images: list[Surface],
         simulation: HeadlessSimulation,
         pos: Any = None,
         move: Any = None,
@@ -45,7 +46,8 @@ class Robot(Agent):
         """Create one robot with random spawn, sensor, and actuator.
 
         Args:
-            images: Sprite image paths passed to violet ``Agent`` base class.
+            images: Loaded sprite surfaces passed to violet ``Agent`` base class
+                (violet's ``batch_spawn_agents`` loads the image paths first).
             simulation: Parent simulation object.
             pos: Optional initial position (overridden by random spawn).
             move: Optional initial movement vector.
