@@ -20,10 +20,3 @@ robot:
   capture_frequency: 1
   communication: true
   self_learning: false
-  empty_observation: "none"
-  use_llm_inbox_synthesis: false
-
-llm:
-  provider: mock
-  model_name: mock
-  thread_workers: 2

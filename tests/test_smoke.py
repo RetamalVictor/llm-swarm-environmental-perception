@@ -1,19 +1,24 @@
-"""End-to-end smoke test: a short headless run completes with a mock LLM.
+"""End-to-end smoke test: a short headless run completes natively offline.
 
-Guards the config/globals refactor — proves the moved, de-globaled package
-still spawns, loops, logs, and writes the run artifacts without a live LLM.
+Guards the sim wiring — proves the package still spawns, loops, logs, and
+writes the run artifacts with no network access or external services.
 """
 
-from conftest import MockManager, load_smoke_config, run_headless
+import json
+
+from conftest import load_smoke_config, run_headless
 
 
-def test_headless_run_completes(tmp_path, monkeypatch) -> None:
-    import swarm_perception.main as main
+def test_headless_run_completes(tmp_path) -> None:
+    run_headless(load_smoke_config(tmp_path))
 
-    cfg = load_smoke_config(tmp_path)
-    monkeypatch.setattr(main, "create_api_manager", lambda *a, **k: MockManager())
-
-    run_headless(cfg)
-
-    for artifact in ("events.jsonl", "config_resolved.yaml", "run_metadata.json", "robots.json"):
+    for artifact in ("events.jsonl", "config_resolved.yaml", "run_metadata.json"):
         assert (tmp_path / artifact).exists(), f"expected {artifact} in the run dir"
+
+    events = [
+        json.loads(line)
+        for line in (tmp_path / "events.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    types = {event["type"] for event in events}
+    assert "capture" in types
+    assert "memory" in types

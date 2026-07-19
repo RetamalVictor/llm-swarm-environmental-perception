@@ -13,9 +13,6 @@ One :class:`RunLogger` owns one run directory and writes:
 - ``run_metadata.json`` — seed, config name, package version, python/platform,
   git SHA, and timestamps; rewritten by :meth:`RunLogger.finalize` with the
   end timestamp and per-type event counts.
-- ``robots.json`` — snapshot compaction written by :meth:`RunLogger.finalize`
-  (``{robot_id_str: [observation, ...]}``), kept for the legacy plot script
-  until Wave D.
 - optional PNG artifacts: full frames under ``frames/`` and camera crops under
   ``robot_crops/``, gated by the ``simulation.save_photo_frames`` /
   ``simulation.save_robot_crops`` config flags.
@@ -25,18 +22,16 @@ Event vocabulary (the contract downstream eval consumes):
 - ``capture`` — ``{type, tick, epoch, robot, key: [epoch, robot, crop_idx],
   bbox: [x1, y1, x2, y2], pos: [x, y]}``. ``bbox`` is the clipped crop rect in
   image pixels; ``pos`` is the robot position at capture time.
-- ``snapshot`` — ``{type, tick, robot, observation}``. The interim text
-  observation; removed in PR-04 when the LLM path dies.
+- ``memory`` — ``{type, tick, epoch, robot, keys: [[epoch, robot, crop_idx],
+  ...]}``. One robot's full memory key set at its capture epoch; ``keys`` is
+  sorted in tuple order.
 - ``comm`` — ``{type, receiver_tick, sender_tick, epoch, receiver, sender,
   merge_method, inbox_policy}``. One successfully merged peer message.
 - ``frame`` — ``{type, tick}``. A synchronized full-frame capture point (the
   PNG itself exists only when a display surface does).
-- ``memory`` — per-epoch memory key snapshot ``{type, robot, epoch,
-  record_keys: [...]}``; documented here as part of the vocabulary but first
-  emitted in PR-04.
 
-Hot path: each event is written with open-append-write under a lock (LLM
-worker threads still exist until PR-04). No read-back and no ``os.stat``
+Hot path: each event is written with open-append-write under a lock — cheap
+at sim event rates and crash-durable. No read-back and no ``os.stat``
 anywhere on the event path.
 """
 
@@ -123,13 +118,11 @@ class RunLogger:
 
         self._events_path = self.run_dir / "events.jsonl"
         self._metadata_path = self.run_dir / "run_metadata.json"
-        self._robots_path = self.run_dir / "robots.json"
         self._frames_dir = self.run_dir / "frames"
         self._crops_dir = self.run_dir / "robot_crops"
 
         self._lock = threading.Lock()
         self._event_counts: Counter[str] = Counter()
-        self._snapshots: dict[int, list[str]] = {}
         self._finalized = False
 
         # Start a fresh event log for this run (writes are append-only after this).
@@ -194,16 +187,23 @@ class RunLogger:
             }
         )
 
-    def log_snapshot(self, *, tick: int, robot: int, observation: str) -> None:
-        """Log one interim text-observation snapshot (dies in PR-04)."""
-        with self._lock:
-            self._snapshots.setdefault(int(robot), []).append(str(observation))
+    def log_memory(self, *, tick: int, epoch: int, robot: int, keys: Any) -> None:
+        """Log one robot's memory key set at its capture epoch.
+
+        Args:
+            tick: Simulation tick of the capture.
+            epoch: Capture epoch of the robot.
+            robot: Robot identifier.
+            keys: Iterable of record keys ``(epoch, robot, crop_idx)``;
+                emitted sorted in tuple order.
+        """
         self._emit(
             {
-                "type": "snapshot",
+                "type": "memory",
                 "tick": int(tick),
+                "epoch": int(epoch),
                 "robot": int(robot),
-                "observation": str(observation),
+                "keys": [[int(e), int(r), int(i)] for e, r, i in sorted(keys)],
             }
         )
 
@@ -271,13 +271,11 @@ class RunLogger:
     # -------------------------------------------------------------- finalize
 
     def finalize(self) -> None:
-        """Seal the run: end timestamp, event counts, snapshot compaction.
+        """Seal the run: end timestamp and per-type event counts.
 
         Rewrites ``run_metadata.json`` with ``finished_at_utc`` and per-type
-        event counts, and compacts the snapshot events into ``robots.json``
-        (``{robot_id_str: [observation, ...]}``). Idempotent — the second and
-        later calls are no-ops, so both ``main()`` and test harnesses may call
-        it.
+        event counts. Idempotent — the second and later calls are no-ops, so
+        both ``main()`` and test harnesses may call it.
         """
         with self._lock:
             if self._finalized:
@@ -286,9 +284,6 @@ class RunLogger:
             self._metadata["finished_at_utc"] = _utc_now_iso()
             self._metadata["event_counts"] = dict(sorted(self._event_counts.items()))
             self._write_metadata()
-            robots = {str(robot): observations for robot, observations in sorted(self._snapshots.items())}
-            with open(self._robots_path, "w", encoding="utf-8", newline="\n") as f:
-                json.dump(robots, f, indent=4)
 
     # -------------------------------------------------------------- internals
 
