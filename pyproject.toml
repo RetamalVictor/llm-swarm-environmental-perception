@@ -35,6 +35,7 @@ dev = [
 [project.scripts]
 swarm-run = "swarm_perception.cli:main"
 swarm-gen = "swarm_perception.world.generate:main"
+swarm-eval = "swarm_perception.eval.cli:main"
 
 [build-system]
 requires = ["hatchling"]
