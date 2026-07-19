@@ -9,7 +9,7 @@ SMOKE_CONFIG = REPO / "tests" / "data" / "smoke.yaml"
 
 def load_smoke_config(output_dir: Path):
     """Load the smoke config redirected into ``output_dir``."""
-    from swarm_perception.utils.config import load_config
+    from swarm_perception.config import load_config
 
     cfg = load_config(SMOKE_CONFIG)
     sim_cfg = dataclasses.replace(cfg.simulation, output_dir=str(output_dir))

@@ -33,7 +33,7 @@ from vi import Agent, Config as ViConfig, HeadlessSimulation, Simulation, Window
 from swarm_perception.actuator import Actuator
 from swarm_perception.camera_sensor import CameraSensor
 from swarm_perception.io.run_logger import RunLogger
-from swarm_perception.utils.config import Config, ConfigError, load_config
+from swarm_perception.config import Config, ConfigError, load_config
 from swarm_perception.utils.paths import ASSETS_DIR
 from swarm_perception.world.background import Background
 
@@ -48,7 +48,7 @@ class Robot(Agent):
     - social exchange: key-union merges of records broadcast by nearby peers
 
     Configuration is read from the injected ``self.shared.cfg`` (typed
-    :class:`~swarm_perception.utils.config.Config`).
+    :class:`~swarm_perception.config.Config`).
     """
 
     def __init__(
