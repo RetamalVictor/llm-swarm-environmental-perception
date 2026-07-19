@@ -15,6 +15,7 @@ simulation:
   seed: 0 # Random seed for reproducible robot placement/motion.
 
 robot:
+  movement_policy: ballistic # Motion pattern: "ballistic", "crw", "levy", or "boustrophedon"; tunables go in robot.policy_params.
   linear_speed: 2.3 # Forward movement speed per simulation tick.
   angular_velocity: 5 # Turn velocity used for edge-avoidance corrections.
   coverage_side: 200 # Side length of the robot camera capture square.
