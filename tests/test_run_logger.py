@@ -1,6 +1,6 @@
 """RunLogger contract tests: canonical JSONL events, no wall-clock leakage,
-run-dir resolution, and same-seed byte-identity of ``events.jsonl`` (D10 T1a)
-for the native headless simulation.
+and run-dir resolution. The same-seed byte-identity ratchet (D10 T1a) lives
+in ``tests/test_determinism.py``.
 """
 
 import dataclasses
@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from conftest import load_smoke_config, run_headless
+from conftest import load_smoke_config
 
 # Wall-clock values are banned from events (D10); sim "tick" counters are fine.
 TIMESTAMP_LIKE = re.compile(r"time|date|stamp|clock|utc", re.IGNORECASE)
@@ -120,28 +120,3 @@ def test_resolve_run_dir_honors_output_dir(cfg, tmp_path) -> None:
     resolved = resolve_run_dir(unset)
     assert resolved.parent == OUTPUT_DIR
     assert resolved.name.startswith(f"{cfg.config.name}-")
-
-
-def test_same_seed_native_runs_are_byte_identical(tmp_path) -> None:
-    run_dirs = []
-    for name in ("run_a", "run_b"):
-        run_dir = tmp_path / name
-        run_headless(load_smoke_config(run_dir))
-        run_dirs.append(run_dir)
-
-    for run_dir in run_dirs:
-        for artifact in ("events.jsonl", "config_resolved.yaml", "run_metadata.json"):
-            assert (run_dir / artifact).exists(), f"missing {artifact} in {run_dir}"
-
-    events_a = (run_dirs[0] / "events.jsonl").read_bytes()
-    events_b = (run_dirs[1] / "events.jsonl").read_bytes()
-    assert len(events_a) > 0, "expected a non-empty event log"
-    assert events_a == events_b, "same config+seed must produce byte-identical events.jsonl"
-
-    # The native sim emits one memory event per robot per capture epoch,
-    # with keys already in sorted tuple order.
-    events = _read_events(run_dirs[0])
-    memory_events = [e for e in events if e["type"] == "memory"]
-    assert memory_events, "expected memory events from the native run"
-    for event in memory_events:
-        assert event["keys"] == sorted(event["keys"])
