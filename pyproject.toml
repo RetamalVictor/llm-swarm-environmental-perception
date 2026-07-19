@@ -15,14 +15,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Evaluation / metrics stack.
-eval = [
+# Frozen perception encoder (OpenCLIP ViT-B/32); CPU-only torch is the
+# reference platform, so no CUDA pins.
+perception = [
     "torch>=2.8",
-    "transformers>=4.57",
-    "sentence-transformers>=5.1",
-    "bert-score>=0.3.13",
+    "open_clip_torch>=2.24",
+]
+# Evaluation / metrics stack; includes the perception encoder via the
+# self-referential extra. Text-metric deps (sentence-transformers,
+# bert-score, nltk, transformers) were removed with the LLM-era metrics.
+eval = [
+    "swarm-perception[perception]",
     "scikit-learn>=1.7",
-    "nltk>=3.9",
     "pandas>=3.0",
     "matplotlib>=3.10",
 ]
@@ -56,5 +60,8 @@ check_untyped_defs = true
 # PyYAML ships no stubs; the rest of the simulation stack is listed so a
 # stub-less wheel on another platform cannot break the type gate.
 [[tool.mypy.overrides]]
-module = ["vi", "vi.*", "pygame", "pygame.*", "cv2", "cv2.*", "yaml", "yaml.*"]
+module = [
+    "vi", "vi.*", "pygame", "pygame.*", "cv2", "cv2.*", "yaml", "yaml.*",
+    "torch", "torch.*", "open_clip", "open_clip.*",
+]
 ignore_missing_imports = true
