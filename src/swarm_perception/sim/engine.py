@@ -45,7 +45,9 @@ def build_vi_config(cfg: Config) -> ViConfig:
         movement_speed=1.0,
         seed=cfg.simulation.seed,
         image_rotation=True,
-        radius=cfg.robot.neighbor_radius,
+        # vi.Config declares radius as int but only uses it in distance
+        # comparisons, so the schema's float passes through unchanged.
+        radius=cfg.robot.neighbor_radius,  # type: ignore[arg-type]
         fps_limit=cfg.simulation.fps,
         duration=cfg.sim_duration,
     )
@@ -70,7 +72,9 @@ class _EngineCore:
             run_dir: Run output directory; defaults to
                 :func:`swarm_perception.io.run_logger.resolve_run_dir` on ``cfg``.
         """
-        super().__init__(vi_config)  # continues into the violet base class
+        # Cooperative mixin: the concrete subclass supplies a violet engine
+        # base, so this super() call never actually reaches object.__init__.
+        super().__init__(vi_config)  # type: ignore[call-arg]
         # self.shared is shared across all agents and the simulation.
         self.shared.cfg = cfg  # type: ignore[attr-defined]
         self.shared.rng = random.Random(cfg.simulation.seed)  # type: ignore[attr-defined]
