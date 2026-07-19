@@ -1,11 +1,12 @@
-"""Robot agent: correlated random walk, camera capture, and record exchange.
+"""Robot agent: policy-driven motion, camera capture, and record exchange.
 
-Robots perform a correlated random walk over a shared background image and
-periodically capture square crops of it. Each capture produces one provenance
-record keyed ``(epoch, robot, crop_idx)``; robots hold these records in a
-capped memory and broadcast them to peers in communication range, merging
-incoming records by key-union under a per-epoch budget. Embeddings replace
-the interim records in a later stage.
+Robots move over a shared background image under the configured movement
+policy (``robot.movement_policy``, see :mod:`swarm_perception.sim.policies`)
+and periodically capture square crops of it. Each capture produces one
+provenance record keyed ``(epoch, robot, crop_idx)``; robots hold these
+records in a capped memory and broadcast them to peers in communication
+range, merging incoming records by key-union under a per-epoch budget.
+Embeddings replace the interim records in a later stage.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from swarm_perception.camera_sensor import CameraSensor
 from swarm_perception.config import Config
 from swarm_perception.io.run_logger import RunLogger
 from swarm_perception.sim.actuator import Actuator
+from swarm_perception.sim.policies import StepContext, build_policy
 
 
 class Robot(Agent):
@@ -35,6 +37,10 @@ class Robot(Agent):
     Configuration is read from the injected ``self.shared.cfg`` (typed
     :class:`~swarm_perception.config.Config`).
     """
+
+    # Heading in degrees (pygame convention), owned and written by the
+    # Actuator; declared here so policy wiring can read it with typing.
+    current_angle: float
 
     def __init__(
         self,
@@ -70,6 +76,11 @@ class Robot(Agent):
             sensing_radius=cfg.robot.neighbor_radius,
         )
         self.actuator = Actuator(self, rng=rng)
+        # One policy instance per robot: policies may carry per-robot state
+        # (e.g. a levy flight in progress). Construction draws no RNG values,
+        # so the seed-to-spawn mapping is identical for every policy choice.
+        self.rng = rng
+        self.policy = build_policy(cfg.robot)
         self.run_logger: RunLogger = self.shared.run_logger  # type: ignore[attr-defined]
 
         # photo taking related
@@ -242,14 +253,19 @@ class Robot(Agent):
         self.process_inbox()
 
     def get_velocities(self) -> tuple[float, float]:
-        """Return movement command for correlated random walk with edge avoidance.
+        """Delegate this tick's movement decision to the configured policy.
 
         Returns:
             Tuple of ``(linear_speed, angular_velocity)`` for this tick.
         """
-        linear_speed = self.cfg.robot.linear_speed  # default
-        angular_velocity = 0.0  # default
-
-        if self.sensor.detect_edges():
-            angular_velocity = self.cfg.robot.angular_velocity  # turn back
-        return linear_speed, angular_velocity
+        area = self._area
+        return self.policy.step(
+            StepContext(
+                pos=(self.pos.x, self.pos.y),
+                heading=self.current_angle,
+                edge=self.sensor.detect_edges(),
+                bounds=(area.left, area.top, area.right, area.bottom),
+                cfg=self.cfg.robot,
+                rng=self.rng,
+            )
+        )
