@@ -240,6 +240,14 @@ class Simulation:
         """The run's event and artifact logger."""
         return self._engine.shared.run_logger  # type: ignore[attr-defined]
 
+    @property
+    def robots(self) -> list[Any]:
+        """Spawned robot agents sorted by id (post-run inspection access)."""
+        return sorted(
+            self._engine._agents.sprites(),  # type: ignore[attr-defined]
+            key=lambda agent: int(agent.id),
+        )
+
     def batch_spawn_agents(
         self, count: int, agent_class: type[Agent], images: list[str]
     ) -> Simulation:
