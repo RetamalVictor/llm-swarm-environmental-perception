@@ -26,7 +26,11 @@ Event vocabulary (the contract downstream eval consumes):
   ...]}``. One robot's full memory key set at its capture epoch; ``keys`` is
   sorted in tuple order.
 - ``comm`` — ``{type, receiver_tick, sender_tick, epoch, receiver, sender,
-  merge_method, inbox_policy}``. One successfully merged peer message.
+  merge_method, inbox_policy, bytes, k_sent, dropped}``. One transmitted peer
+  message at the moment its fate is decided; ``bytes`` prices it per the byte
+  model in :mod:`swarm_perception.sim.channel` (the single byte-model
+  authority) and losses still log their cost with ``dropped: true``, so a
+  robot's cumulative spent channel bytes is the sum over its comm events.
 - ``frame`` — ``{type, tick}``. A synchronized full-frame capture point (the
   PNG itself exists only when a display surface does).
 
@@ -40,11 +44,9 @@ from __future__ import annotations
 import dataclasses
 import json
 import platform
-import subprocess
 import threading
 from collections import Counter
-from datetime import datetime, timezone
-from importlib import metadata as importlib_metadata
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +55,7 @@ import pygame as pg
 import yaml
 
 from swarm_perception.config import Config
+from swarm_perception.io.run_meta import git_sha, package_version, utc_now_iso
 from swarm_perception.utils.paths import OUTPUT_DIR
 
 _JSON_SEPARATORS = (",", ":")
@@ -71,34 +74,6 @@ def resolve_run_dir(cfg: Config) -> Path:
         return Path(cfg.simulation.output_dir)
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     return OUTPUT_DIR / f"{cfg.config.name}-{timestamp}"
-
-
-def _git_sha() -> str:
-    """Current git commit SHA, or ``"unknown"`` outside a repo / without git."""
-    try:
-        result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=Path(__file__).resolve().parent,
-            capture_output=True,
-            text=True,
-            timeout=10,
-        )
-    except OSError:
-        return "unknown"
-    if result.returncode != 0:
-        return "unknown"
-    return result.stdout.strip() or "unknown"
-
-
-def _package_version() -> str:
-    try:
-        return importlib_metadata.version("swarm-perception")
-    except importlib_metadata.PackageNotFoundError:
-        return "unknown"
-
-
-def _utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 class RunLogger:
@@ -132,11 +107,11 @@ class RunLogger:
         self._metadata: dict[str, Any] = {
             "config_name": cfg.config.name,
             "seed": cfg.simulation.seed,
-            "package_version": _package_version(),
+            "package_version": package_version(),
             "python_version": platform.python_version(),
             "platform": platform.platform(),
-            "git_sha": _git_sha(),
-            "started_at_utc": _utc_now_iso(),
+            "git_sha": git_sha(),
+            "started_at_utc": utc_now_iso(),
         }
         self._write_metadata()
 
@@ -217,8 +192,22 @@ class RunLogger:
         sender: int,
         merge_method: str,
         inbox_policy: str,
+        bytes_size: int,
+        k_sent: int,
+        dropped: bool,
     ) -> None:
-        """Log one successfully merged peer message."""
+        """Log one transmitted peer message at the moment its fate is decided.
+
+        ``inbox_policy`` names the fate — ``within_budget`` /
+        ``deterministic_after_budget`` for merges (``merge_method``
+        ``"deterministic"``, ``dropped`` False), ``channel_drop`` /
+        ``inbox_overflow`` / ``drop_after_budget`` for losses
+        (``merge_method`` ``"none"``, ``dropped`` True). ``bytes_size`` is
+        the spent channel bytes per the byte model in
+        :mod:`swarm_perception.sim.channel`, emitted as ``bytes``; for
+        channel drops ``receiver_tick`` is the tick delivery would have
+        happened.
+        """
         self._emit(
             {
                 "type": "comm",
@@ -229,6 +218,9 @@ class RunLogger:
                 "sender": int(sender),
                 "merge_method": str(merge_method),
                 "inbox_policy": str(inbox_policy),
+                "bytes": int(bytes_size),
+                "k_sent": int(k_sent),
+                "dropped": bool(dropped),
             }
         )
 
@@ -281,7 +273,7 @@ class RunLogger:
             if self._finalized:
                 return
             self._finalized = True
-            self._metadata["finished_at_utc"] = _utc_now_iso()
+            self._metadata["finished_at_utc"] = utc_now_iso()
             self._metadata["event_counts"] = dict(sorted(self._event_counts.items()))
             self._write_metadata()
 

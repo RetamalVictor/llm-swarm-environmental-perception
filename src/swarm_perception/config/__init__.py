@@ -7,8 +7,11 @@ Public names are re-exported here so call sites can write
 from swarm_perception.config.loader import load_config
 from swarm_perception.config.schema import (
     MOVEMENT_POLICIES,
+    CommsCfg,
     Config,
     ConfigError,
+    FusionCfg,
+    PerceptionCfg,
     RobotCfg,
     RunCfg,
     SimulationCfg,
@@ -17,8 +20,11 @@ from swarm_perception.config.schema import (
 
 __all__ = [
     "MOVEMENT_POLICIES",
+    "CommsCfg",
     "Config",
     "ConfigError",
+    "FusionCfg",
+    "PerceptionCfg",
     "RobotCfg",
     "RunCfg",
     "SimulationCfg",

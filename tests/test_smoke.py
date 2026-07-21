@@ -22,3 +22,4 @@ def test_headless_run_completes(tmp_path) -> None:
     types = {event["type"] for event in events}
     assert "capture" in types
     assert "memory" in types
+    assert "comm" in types

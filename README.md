@@ -9,18 +9,26 @@ seeded: the same config and seed reproduce the event log byte for byte.
 
 ## How a run works
 
-1. Robots move continuously through the world (bounce-off-edges motion).
-2. Every capture epoch (`robot.capture_frequency` seconds of sim time), all
-   robots simultaneously photograph the square patch under them
-   (`robot.coverage_side` pixels). Captures are discrete and synchronized on
-   purpose — each one becomes a record with the globally unique key
-   `(epoch, robot, crop_index)`, which makes memories mergeable and runs
-   replayable.
-3. Each robot stores records in its memory, capped at `robot.memory_cap`.
-4. When two robots are within `robot.neighbor_radius`, they exchange records
+1. Robots move continuously through the world under the configured movement
+   policy.
+2. Every capture epoch (`robot.capture_frequency` seconds of sim time), the
+   engine photographs the square patch under every robot
+   (`robot.coverage_side` pixels) and embeds the whole epoch as one batch in
+   sorted robot-id order with the configured encoder (`perception.model`:
+   the deterministic stub or frozen CLIP). Captures are discrete and
+   synchronized on purpose — each becomes an embedding record with the
+   globally unique key `(epoch, robot, crop_index)`, which makes memories
+   mergeable and runs replayable.
+3. Each robot holds a graded memory: a record set capped at
+   `fusion.memory_cap` (canonical dedup and k-center merges at
+   `fusion.tau_dedup`) plus a visitation residue — a grid of fully-observed
+   cells that survives every eviction.
+4. When two robots are within `robot.neighbor_radius`, they exchange up to
+   `comms.k` records per message over a budgeted channel (seeded packet
+   drop, optional delay, payload quantization, optional residue sharing)
    through a bounded inbox with a per-epoch merge budget.
 5. Everything observable is appended to `events.jsonl`: every capture with its
-   exact crop rectangle, every memory state, every merge.
+   exact crop rectangle, every memory state, every priced comm message.
 
 In the windowed mode you can watch this live: squares are camera footprints
 (flashing yellow on a capture epoch), yellow circles are communication radii.
@@ -116,11 +124,18 @@ extra is not installed.
 
 Every YAML key is documented inline in `examples/example1.yaml`. Notes:
 
-- `robot.communication` toggles peer exchange entirely
-  (`*_comm.yaml` / `*_noncomm.yaml` config pairs).
-- `robot.memory_cap` bounds how many records a robot may hold.
-- `robot.max_inbox_merges_per_epoch` and `robot.inbox_merge_after_budget`
-  (`drop` or `deterministic`) control the merge budget.
+- `perception.model` selects the epoch encoder: `stub` (deterministic
+  pure-numpy embeddings derived from record keys; the CI path) or `clip`
+  (the pinned frozen encoder; needs the `perception` extra).
+- `fusion.tau_dedup` and `fusion.memory_cap` parameterize the canonical
+  record merge and the per-robot memory bound.
+- `comms.enabled` toggles peer exchange entirely
+  (`*_comm.yaml` / `*_noncomm.yaml` config pairs); `comms.k`,
+  `comms.sender_policy`, `comms.drop_p`, `comms.delay_ticks`,
+  `comms.quantization`, and `comms.share_visitation` shape the channel;
+  `comms.max_inbox_merges_per_epoch` and `comms.over_budget` (`drop` or
+  `deterministic`) control the merge budget. Every transmission logs its
+  byte cost (the byte model lives in `src/swarm_perception/sim/channel.py`).
 - `simulation.fps` only derives the capture cadence; headless runs are never
   wall-clock paced.
 

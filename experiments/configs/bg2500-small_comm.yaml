@@ -10,18 +10,34 @@ simulation:
   height: 2500
   fps: 60
   num_of_robots: 9
-  background_image: "background-2500.png" # /assets 1200 x 1200
+  background_image: "background-2500.png" # /assets
   robot_image: "robot.png" # /assets
   seed: 0
 
 robot:
+  movement_policy: ballistic
   linear_speed: 2.3
   angular_velocity: 5
   coverage_side: 150
-  neighbor_radius: 150 # half the coverage side
+  neighbor_radius: 150 # matches the coverage side
   capture_frequency: 5 # in seconds, *FPS
-  communication: True
-  self_learning: True
+
+perception:
+  model: stub
+  device: cpu
+  batch_size: 64
+
+fusion:
+  tau_dedup: 0.95
   memory_cap: 40
+
+comms:
+  enabled: true
+  k: 4
+  sender_policy: most_recent
+  drop_p: 0.0
+  delay_ticks: 0
+  quantization: none
+  share_visitation: false
   max_inbox_merges_per_epoch: 1
-  inbox_merge_after_budget: "drop"
+  over_budget: drop

@@ -3,8 +3,15 @@
 :class:`Simulation` is the only public entry to the runtime. It selects the
 violet base engine (windowed ``vi.Simulation`` or ``vi.HeadlessSimulation``)
 from its ``headless`` flag and wires the shared per-run services (typed
-config, seeded RNG, load-once background, :class:`RunLogger`) that every
-agent reads through ``self.shared``.
+config, seeded RNG, load-once background, :class:`RunLogger`, the budgeted
+:class:`~swarm_perception.sim.channel.Channel`, and the configured epoch
+encoder) that every agent reads through ``self.shared``.
+
+The engine also owns the CAPTURE EPOCH HOOK: at every capture tick, after
+all agents updated, it gathers all robots sorted by id, extracts every crop
+in one call, embeds the whole epoch as ONE batch (D11), and hands each robot
+its :class:`~swarm_perception.fusion.memory.MemoryRecord`. Both run modes
+share the hook — windowed runs draw right after it.
 
 Headless runs execute flat-out: ``simulation.fps`` only derives
 ``photo_ticks`` (captures per simulated second) and never paces wall-clock
@@ -25,7 +32,11 @@ from vi import Simulation as ViSimulation
 from vi.metrics import Metrics
 
 from swarm_perception.config import Config
+from swarm_perception.fusion.memory import MemoryRecord
 from swarm_perception.io.run_logger import RunLogger
+from swarm_perception.perception.crops import extract_crops
+from swarm_perception.perception.runtime import build_epoch_encoder
+from swarm_perception.sim.channel import Channel
 from swarm_perception.utils.paths import ASSETS_DIR
 from swarm_perception.world.background import Background
 
@@ -81,7 +92,11 @@ class _EngineCore:
         # Load-once world image; every robot crops views of this one array.
         self.shared.background = Background(background_path)  # type: ignore[attr-defined]
         self.shared.run_logger = RunLogger(cfg, run_dir=run_dir)  # type: ignore[attr-defined]
-        self.shared.photo_frame_capture_state = {"tick": None, "robot_ids": set(), "saved": False}  # type: ignore[attr-defined]
+        # Budgeted channel state (dedicated drop RNG) and the epoch encoder.
+        self.shared.channel = Channel(cfg.comms, cfg.simulation.seed)  # type: ignore[attr-defined]
+        self.shared.epoch_encoder = build_epoch_encoder(  # type: ignore[attr-defined]
+            cfg.perception.model, cfg.perception.device, cfg.perception.batch_size
+        )
         self._load_display_background(background_path)
 
     def _load_display_background(self, background_path: Any) -> None:
@@ -109,6 +124,64 @@ class _EngineCore:
             agent: Agent = sprite  # type: ignore
             linear_speed, angular_velocity = agent.get_velocities()  # type: ignore
             agent.actuator.update(linear_speed, angular_velocity)  # type: ignore
+
+    def after_update(self) -> None:
+        """Run the capture epoch hook, then violet's own post-update work.
+
+        Violet increments ``shared.counter`` after this hook, so the tick
+        being finished is ``counter + 1`` — the same value every robot holds
+        in ``tick_count`` after its update. Positions do not change between
+        the agent updates and this hook, so capture geometry matches what
+        each robot exchanged this tick.
+        """
+        tick = int(self.shared.counter) + 1  # type: ignore[attr-defined]
+        cfg: Config = self.shared.cfg  # type: ignore[attr-defined]
+        if cfg.photo_ticks > 0 and tick % cfg.photo_ticks == 0:
+            self._run_capture_epoch(tick, tick // cfg.photo_ticks)
+        super().after_update()  # type: ignore[misc]
+
+    def _run_capture_epoch(self, tick: int, epoch: int) -> None:
+        """Capture one epoch for the whole swarm: crop, embed once, distribute.
+
+        All robots' ``(id, pos)`` pairs are gathered sorted by robot id,
+        :func:`extract_crops` runs once for the epoch, and the configured
+        encoder embeds the epoch as ONE batch in that order (the determinism
+        contract, D11). Each robot then incorporates its own record — key
+        ``(epoch, robot_id, 0)``, the batch embedding, and the exact clipped
+        rect reported by the crop extraction.
+        """
+        cfg: Config = self.shared.cfg  # type: ignore[attr-defined]
+        robots = sorted(
+            self._agents.sprites(),  # type: ignore[attr-defined]
+            key=lambda agent: int(agent.id),
+        )
+        if not robots:
+            return
+        captures = [
+            (int(robot.id), (float(robot.pos.x), float(robot.pos.y))) for robot in robots
+        ]
+        crops, rects = extract_crops(
+            self.shared.background,  # type: ignore[attr-defined]
+            captures,
+            cfg.robot.coverage_side,
+        )
+        keys = [(epoch, robot_id, 0) for robot_id, _ in captures]
+        embeddings = self.shared.epoch_encoder.embed_epoch(crops, keys)  # type: ignore[attr-defined]
+
+        if cfg.simulation.save_photo_frames:
+            self.shared.run_logger.save_frame(tick)  # type: ignore[attr-defined]
+
+        for robot, (_, pos), key, rect, embedding in zip(
+            robots, captures, keys, rects, embeddings, strict=True
+        ):
+            record = MemoryRecord(
+                embedding=embedding,
+                key=key,
+                pos=pos,
+                crop_bbox=rect,
+                first_seen=epoch,
+            )
+            robot.incorporate_capture(record, tick)  # type: ignore[attr-defined]
 
 
 class _WindowedEngine(_EngineCore, ViSimulation):
@@ -166,6 +239,14 @@ class Simulation:
     def run_logger(self) -> RunLogger:
         """The run's event and artifact logger."""
         return self._engine.shared.run_logger  # type: ignore[attr-defined]
+
+    @property
+    def robots(self) -> list[Any]:
+        """Spawned robot agents sorted by id (post-run inspection access)."""
+        return sorted(
+            self._engine._agents.sprites(),  # type: ignore[attr-defined]
+            key=lambda agent: int(agent.id),
+        )
 
     def batch_spawn_agents(
         self, count: int, agent_class: type[Agent], images: list[str]
