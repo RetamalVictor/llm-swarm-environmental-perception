@@ -21,8 +21,23 @@ robot:
   coverage_side: 200 # Side length of the robot camera capture square.
   neighbor_radius: 200 # Proximity radius used to detect neighboring robots.
   capture_frequency: 20 # Sim-seconds of movement between capture rounds when fps > 0; PHOTO_TICKS = capture_frequency * fps.
-  communication: true # Enables/disables peer-to-peer message exchange entirely.
-  self_learning: true # Reserved for memory-aware capture; unused by the interim record path.
-  memory_cap: 40 # Hard cap on stored capture records; smallest keys kept on overflow.
+
+perception:
+  model: stub # Epoch encoder: "stub" (deterministic pure-numpy embeddings derived from record keys; the CI path) or "clip" (pinned OpenCLIP ViT-B/32; needs the perception extra).
+  device: cpu # Torch device for the clip encoder; cpu is the reference platform. Ignored by the stub.
+  batch_size: 64 # Max crops per clip encoder call; keep >= num_of_robots so each epoch embeds as one batch (D11). Ignored by the stub.
+
+fusion:
+  tau_dedup: 0.95 # Cosine similarity at which two records fold together during merges (0 < tau <= 1).
+  memory_cap: 40 # Hard cap on records per robot; greedy k-center selection keeps the most spread-out set on overflow.
+
+comms:
+  enabled: true # Master switch for peer-to-peer record exchange.
+  k: 4 # Max records per broadcast message (the sender budget).
+  sender_policy: most_recent # Which records to share: "most_recent" (largest keys) or "coverage_greedy" (greedy max-min cosine spread).
+  drop_p: 0.0 # Bernoulli packet-drop probability per transmission, drawn from a dedicated seeded stream.
+  delay_ticks: 0 # Delivery delay in ticks; 0 keeps same-tick delivery semantics.
+  quantization: none # Embedding wire format: "none" (fp32), "fp16", or "int8"; quantized once at the source and cached by record key.
+  share_visitation: false # Also transmit the sender's visitation residue bitmap; receivers union it into their own residue.
   max_inbox_merges_per_epoch: 1 # Per-robot merge budget each capture epoch (set 1/2/3/4+ as needed).
-  inbox_merge_after_budget: "drop" # Behavior once budget is reached: "drop" or "deterministic".
+  over_budget: drop # Fate of queued messages past the budget: "drop" (discard, residue still updates) or "deterministic" (merge anyway).

@@ -102,12 +102,9 @@ class RunCfg:
 
 @dataclass(frozen=True)
 class PerceptionCfg:
-    """Encoder selection (the YAML ``perception:`` section).
-
-    ``model`` picks the epoch encoder: ``"stub"`` derives deterministic
-    pure-numpy embeddings from record keys (the CI path), ``"clip"`` runs the
-    pinned OpenCLIP encoder (needs the ``perception`` extra).
-    """
+    """Encoder selection (the YAML ``perception:`` section): ``"stub"``
+    derives deterministic pure-numpy embeddings from record keys (the CI
+    path); ``"clip"`` runs the pinned OpenCLIP encoder (perception extra)."""
 
     model: str = "stub"
     device: str = "cpu"
@@ -197,40 +194,24 @@ class SimulationCfg:
 
 @dataclass(frozen=True)
 class RobotCfg:
-    """Per-robot behavior settings (the YAML ``robot:`` section)."""
+    """Per-robot motion and sensing settings (the YAML ``robot:`` section).
+
+    Communication lives in :class:`CommsCfg` and memory in :class:`FusionCfg`;
+    this section covers motion and capture geometry only.
+    """
 
     linear_speed: float
     angular_velocity: float
     coverage_side: float
     neighbor_radius: float
     capture_frequency: float
-    communication: bool
-    self_learning: bool
-    memory_cap: int = 40
-    max_inbox_merges_per_epoch: int = 1
-    inbox_merge_after_budget: str = "drop"
     movement_policy: str = "ballistic"
     policy_params: dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        # Normalize the two fields the old code cleaned at read time.
-        object.__setattr__(
-            self, "inbox_merge_after_budget", str(self.inbox_merge_after_budget).strip().lower()
-        )
-        object.__setattr__(
-            self, "max_inbox_merges_per_epoch", max(0, int(self.max_inbox_merges_per_epoch))
-        )
         for name in ("coverage_side", "capture_frequency", "neighbor_radius"):
             if getattr(self, name) <= 0:
                 raise ConfigError(f"robot.{name} must be > 0, got {getattr(self, name)}")
-        if self.memory_cap <= 0:
-            raise ConfigError(f"robot.memory_cap must be > 0, got {self.memory_cap}")
-        allowed_policies = {"drop", "deterministic"}
-        if self.inbox_merge_after_budget not in allowed_policies:
-            raise ConfigError(
-                f"robot.inbox_merge_after_budget must be one of {sorted(allowed_policies)}, "
-                f"got {self.inbox_merge_after_budget!r}"
-            )
         object.__setattr__(self, "movement_policy", str(self.movement_policy).strip().lower())
         if self.movement_policy not in MOVEMENT_POLICIES:
             raise ConfigError(
@@ -251,6 +232,9 @@ class Config:
     config: RunCfg
     simulation: SimulationCfg
     robot: RobotCfg
+    perception: PerceptionCfg
+    fusion: FusionCfg
+    comms: CommsCfg
 
     # --- derived values (formerly module-level globals) ---
     @property
@@ -279,7 +263,7 @@ def _section(cls: type, data: Any, name: str) -> Any:
         raise ConfigError(f"config section '{name}' is invalid: {error}") from error
 
 
-_ROOT_SECTIONS = {"config", "simulation", "robot"}
+_ROOT_SECTIONS = {"config", "simulation", "robot", "perception", "fusion", "comms"}
 
 
 def build_config(data: Any) -> Config:
@@ -308,4 +292,7 @@ def build_config(data: Any) -> Config:
         config=_section(RunCfg, data.get("config"), "config"),
         simulation=_section(SimulationCfg, data.get("simulation"), "simulation"),
         robot=_section(RobotCfg, data.get("robot"), "robot"),
+        perception=_section(PerceptionCfg, data.get("perception"), "perception"),
+        fusion=_section(FusionCfg, data.get("fusion"), "fusion"),
+        comms=_section(CommsCfg, data.get("comms"), "comms"),
     )

@@ -1,18 +1,28 @@
-"""Robot agent: policy-driven motion, camera capture, and record exchange.
+"""Robot agent: policy-driven motion, graded memory, budgeted exchange.
 
 Robots move over a shared background image under the configured movement
-policy (``robot.movement_policy``, see :mod:`swarm_perception.sim.policies`)
-and periodically capture square crops of it. Each capture produces one
-provenance record keyed ``(epoch, robot, crop_idx)``; robots hold these
-records in a capped memory and broadcast them to peers in communication
-range, merging incoming records by key-union under a per-epoch budget.
-Embeddings replace the interim records in a later stage.
+policy (``robot.movement_policy``, see :mod:`swarm_perception.sim.policies`).
+Capture itself is engine-driven: at every capture epoch the engine embeds all
+robots' crops as one batch and hands each robot its
+:class:`~swarm_perception.fusion.memory.MemoryRecord` through
+:meth:`Robot.incorporate_capture`.
+
+Each robot holds the graded memory ``M = (R, S)``: ``R`` is a bounded
+:class:`~swarm_perception.fusion.memory.SetMemory` of embedding records and
+``S`` a :class:`~swarm_perception.sim.residue.VisitationResidue` of
+fully-observed grid cells. Eviction from ``R`` is demotion, not deletion —
+every record a robot ever incorporates marks its rect's cells in ``S`` first.
+
+Exchange runs over the budgeted channel (:mod:`swarm_perception.sim.channel`)
+through the per-robot :class:`~swarm_perception.sim.exchange.ExchangeUnit`:
+at most ``comms.k`` records per broadcast, quantized once at the source,
+subject to seeded packet drop and optional delivery delay, received through a
+bounded FIFO inbox with a per-epoch merge budget.
 """
 
 from __future__ import annotations
 
 import random
-from collections import deque
 from typing import Any
 
 from pygame import Surface
@@ -20,22 +30,22 @@ from vi import Agent, HeadlessSimulation
 
 from swarm_perception.camera_sensor import CameraSensor
 from swarm_perception.config import Config
+from swarm_perception.fusion.memory import MemoryRecord, SetMemory
 from swarm_perception.io.run_logger import RunLogger
 from swarm_perception.sim.actuator import Actuator
+from swarm_perception.sim.channel import Channel, Message
+from swarm_perception.sim.exchange import ExchangeUnit
 from swarm_perception.sim.policies import StepContext, build_policy
+from swarm_perception.sim.residue import VisitationResidue
 
 
 class Robot(Agent):
-    """Swarm robot agent with camera sensing and record-based memory.
-
-    Each robot keeps a dict of capture records keyed by
-    ``(epoch, robot, crop_idx)`` and grows it through two pathways:
-
-    - individual sensing: one record per own camera capture
-    - social exchange: key-union merges of records broadcast by nearby peers
+    """Swarm robot agent with graded memory and budgeted record exchange.
 
     Configuration is read from the injected ``self.shared.cfg`` (typed
-    :class:`~swarm_perception.config.Config`).
+    :class:`~swarm_perception.config.Config`); the shared per-run
+    :class:`~swarm_perception.sim.channel.Channel` provides the seeded
+    packet-drop stream.
     """
 
     # Heading in degrees (pygame convention), owned and written by the
@@ -49,7 +59,7 @@ class Robot(Agent):
         pos: Any = None,
         move: Any = None,
     ) -> None:
-        """Create one robot with random spawn, sensor, and actuator.
+        """Create one robot with random spawn, sensor, actuator, and memory.
 
         Args:
             images: Loaded sprite surfaces passed to violet ``Agent`` base class
@@ -63,15 +73,13 @@ class Robot(Agent):
         self.cfg = cfg
         rng: random.Random = self.shared.rng  # type: ignore[attr-defined]
 
-        self.sense_square = cfg.robot.coverage_side
-
         # spawning coordinates
         self.pos.x = rng.uniform(cfg.robot.coverage_side, cfg.simulation.width - cfg.robot.coverage_side)
         self.pos.y = rng.uniform(cfg.robot.coverage_side, cfg.simulation.height - cfg.robot.coverage_side)
 
         self.sensor = CameraSensor(
             agent=self,
-            coverage_side=self.sense_square,
+            coverage_side=cfg.robot.coverage_side,
             background=self.shared.background,  # type: ignore[attr-defined]
             sensing_radius=cfg.robot.neighbor_radius,
         )
@@ -82,115 +90,82 @@ class Robot(Agent):
         self.rng = rng
         self.policy = build_policy(cfg.robot)
         self.run_logger: RunLogger = self.shared.run_logger  # type: ignore[attr-defined]
+        self.channel: Channel = self.shared.channel  # type: ignore[attr-defined]
 
-        # photo taking related
-        self.photo_tick_counter = 0
+        # photo flash state (windowed visualization only)
         self.is_taking_photo = False
         self.flash_duration = 15  # ticks
         self.flash_counter = 0
         self.capture_epoch = 0
         self.tick_count = 0
 
-        # agent's memory: one record per capture key, merged by key-union
-        self.memory: dict[tuple[int, int, int], dict[str, Any]] = {}
-        self.inbox_merges_this_epoch = 0
+        # graded memory M = (R, S): bounded record set plus visitation residue
+        self.memory = SetMemory(
+            (), tau_dedup=cfg.fusion.tau_dedup, memory_cap=cfg.fusion.memory_cap
+        )
+        self.residue = VisitationResidue(
+            cfg.simulation.width, cfg.simulation.height, cfg.robot.coverage_side
+        )
+        # Channel endpoint: inbox, delay queue, payload cache, merge budget.
+        self.exchange = ExchangeUnit(self)
 
-        # message transfer: bounded FIFO of (records, sender_tick, sender_id)
-        self.inbox_queue: deque[tuple[list[dict[str, Any]], int, int]] = deque(maxlen=8)
+    # ------------------------------------------------------------- capture
 
-    def receive_peer_message(
-        self, records: list[dict[str, Any]], sender_tick: int, sender_id: int
-    ) -> None:
-        """Queue one peer broadcast into the bounded FIFO inbox.
+    def incorporate_capture(self, record: MemoryRecord, tick: int) -> None:
+        """Incorporate this robot's own capture record for one epoch.
 
-        The inbox holds at most 8 broadcasts; when full, the oldest queued
-        broadcast is dropped to make room for the incoming one.
-
-        Args:
-            records: Sender's full record list.
-            sender_tick: Sender tick when the broadcast was emitted.
-            sender_id: Sender robot identifier.
+        Called by the engine's epoch hook after the whole epoch was embedded
+        as one batch. Logs the capture, marks the residue (before the memory
+        merge decides the record's fate), merges the record, and logs the
+        retained memory keys.
         """
-        self.inbox_queue.append((records, sender_tick, sender_id))
+        epoch = record.key[0]
+        self.run_logger.log_capture(
+            tick=tick,
+            epoch=epoch,
+            robot=int(self.id),
+            bbox=record.crop_bbox,
+            pos=record.pos,
+        )
+        if self.cfg.simulation.save_robot_crops:
+            image, _ = self.sensor.take_photo()  # same rect: same pos and rounding
+            self.run_logger.save_crop(
+                robot_id=int(self.id), tick=tick, epoch=epoch, image=image
+            )
+        self.residue.mark_rect(record.crop_bbox)
+        self.memory.add(record)
+        self.run_logger.log_memory(
+            tick=tick, epoch=epoch, robot=int(self.id), keys=self.memory.keys()
+        )
+
+    # ------------------------------------------------------------- exchange
 
     def exchange_with_neighbors(self) -> None:
-        """Broadcast this robot's full record list to peers currently in range."""
-        if not self.memory or not self.cfg.robot.communication:
+        """Broadcast one budgeted message to every peer currently in range."""
+        if not self.cfg.comms.enabled or len(self.memory) == 0:
             return
-        records = list(self.memory.values())
-        for neighbor, _ in self.in_proximity_accuracy():
-            neighbor.receive_peer_message(records, self.tick_count, int(self.id))  # type: ignore
+        neighbors = sorted(
+            (agent for agent, _ in self.in_proximity_accuracy()),
+            key=lambda agent: int(agent.id),
+        )
+        if neighbors:
+            self.exchange.broadcast(neighbors)  # type: ignore[arg-type]
 
-    def merge_records(self, records: list[dict[str, Any]]) -> None:
-        """Merge records into memory by key-union, then enforce the memory cap.
+    def deliver_message(self, message: Message) -> None:
+        """Accept one transmitted message into this robot's channel endpoint."""
+        self.exchange.deliver(message)
 
-        Records whose key is already present are ignored. When the cap is
-        exceeded, the records with the smallest keys (tuple order) are kept —
-        a deterministic canonical truncation; k-center selection replaces it
-        when embeddings land.
-        """
-        for record in records:
-            key = (int(record["key"][0]), int(record["key"][1]), int(record["key"][2]))
-            if key not in self.memory:
-                self.memory[key] = record
-        cap = self.cfg.robot.memory_cap
-        if len(self.memory) > cap:
-            self.memory = {key: self.memory[key] for key in sorted(self.memory)[:cap]}
-
-    def process_inbox(self) -> None:
-        """Process at most one queued peer broadcast per tick.
-
-        Within the per-epoch budget the broadcast is merged by key-union.
-        Over budget, ``robot.inbox_merge_after_budget`` decides: ``"drop"``
-        discards the broadcast, ``"deterministic"`` merges it anyway.
-        """
-        if not self.inbox_queue:
-            return
-        if self.inbox_merges_this_epoch < self.cfg.robot.max_inbox_merges_per_epoch:
-            records, sender_tick, sender_id = self.inbox_queue.popleft()
-            self.merge_records(records)
-            self.run_logger.log_comm(
-                receiver_tick=self.tick_count,
-                sender_tick=sender_tick,
-                epoch=self.capture_epoch,
-                receiver=int(self.id),
-                sender=sender_id,
-                merge_method="deterministic",
-                inbox_policy="within_budget",
-                # Interim dict records carry no payload; the channel byte
-                # model prices messages once embeddings are on the wire.
-                bytes_size=0,
-                k_sent=len(records),
-                dropped=False,
-            )
-            self.inbox_merges_this_epoch += 1
-            return
-        if self.cfg.robot.inbox_merge_after_budget == "deterministic":
-            records, sender_tick, sender_id = self.inbox_queue.popleft()
-            self.merge_records(records)
-            self.run_logger.log_comm(
-                receiver_tick=self.tick_count,
-                sender_tick=sender_tick,
-                epoch=self.capture_epoch,
-                receiver=int(self.id),
-                sender=sender_id,
-                merge_method="deterministic",
-                inbox_policy="deterministic_after_budget",
-                bytes_size=0,
-                k_sent=len(records),
-                dropped=False,
-            )
-            return
-        # "drop": over budget for this epoch; discard the oldest broadcast.
-        self.inbox_queue.popleft()
+    # ----------------------------------------------------------------- tick
 
     def update(self) -> None:
-        """Execute one full agent tick for sensing, memory, and exchange.
+        """Execute one agent tick: flash state, epoch rollover, and exchange.
 
         The tick loop performs:
-        1) sensing overlay and periodic photo capture with record insertion
-        2) continuous neighbor broadcast while in proximity
-        3) at most one budgeted inbox merge
+        1) sensing overlay and capture-epoch rollover (the capture itself is
+           engine-driven after all agents updated this tick)
+        2) delivery of delay-matured messages into the FIFO inbox
+        3) continuous neighbor broadcast while in proximity
+        4) at most one budgeted inbox merge
         """
         cfg = self.cfg
         self.tick_count += 1
@@ -204,61 +179,17 @@ class Robot(Agent):
         else:
             self.sensor.show_outline()
 
-        # take a photo every capture_frequency seconds (real time when fps > 0)
-        self.photo_tick_counter += 1
-        if self.photo_tick_counter >= cfg.photo_ticks:
-            # state variables
-            self.photo_tick_counter = 0
+        # Capture-epoch rollover: the engine's after-update hook performs the
+        # actual capture at this same tick (positions do not move in between).
+        if cfg.photo_ticks > 0 and self.tick_count % cfg.photo_ticks == 0:
             self.is_taking_photo = True
             self.capture_epoch += 1
-            self.inbox_merges_this_epoch = 0
+            self.exchange.merges_this_epoch = 0
 
-            if cfg.simulation.save_photo_frames:
-                frame_state = self.shared.photo_frame_capture_state  # type: ignore
-                if frame_state["tick"] != self.tick_count:
-                    frame_state["tick"] = self.tick_count
-                    frame_state["robot_ids"] = set()
-                    frame_state["saved"] = False
-
-                frame_state["robot_ids"].add(int(self.id))
-                if not frame_state["saved"] and len(frame_state["robot_ids"]) >= cfg.simulation.num_of_robots:
-                    # Save one frame once all robots entered photo mode for this tick.
-                    self.run_logger.save_frame(self.tick_count)
-                    frame_state["saved"] = True
-
-            image, rect = self.sensor.take_photo()
-            self.run_logger.log_capture(
-                tick=self.tick_count,
-                epoch=self.capture_epoch,
-                robot=int(self.id),
-                bbox=rect,
-                pos=(self.pos.x, self.pos.y),
-            )
-            self.run_logger.save_crop(
-                robot_id=int(self.id),
-                tick=self.tick_count,
-                epoch=self.capture_epoch,
-                image=image,
-            )
-            self.merge_records(
-                [
-                    {
-                        "key": [self.capture_epoch, int(self.id), 0],
-                        "bbox": [int(v) for v in rect],
-                        "pos": [float(self.pos.x), float(self.pos.y)],
-                    }
-                ]
-            )
-            self.run_logger.log_memory(
-                tick=self.tick_count,
-                epoch=self.capture_epoch,
-                robot=int(self.id),
-                keys=self.memory,
-            )
-
+        self.exchange.collect_due_pending()
         # Exchange records whenever peers are currently nearby (not only photo events).
         self.exchange_with_neighbors()
-        self.process_inbox()
+        self.exchange.process_inbox()
 
     def get_velocities(self) -> tuple[float, float]:
         """Delegate this tick's movement decision to the configured policy.

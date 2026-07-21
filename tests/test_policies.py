@@ -40,8 +40,6 @@ def _robot_cfg(**overrides) -> RobotCfg:
         coverage_side=40.0,
         neighbor_radius=50.0,
         capture_frequency=1.0,
-        communication=False,
-        self_learning=False,
     )
     base.update(overrides)
     return RobotCfg(**base)

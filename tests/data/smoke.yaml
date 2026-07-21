@@ -2,12 +2,12 @@ config:
   name: smoke
 
 simulation:
-  run_length: 1
+  run_length: 2
   headless: true
   width: 2500
   height: 2500
   fps: 5
-  num_of_robots: 3
+  num_of_robots: 5
   background_image: "background-2500.png"
   robot_image: "robot.png"
   seed: 0
@@ -17,7 +17,25 @@ robot:
   linear_speed: 2.3
   angular_velocity: 5
   coverage_side: 150
-  neighbor_radius: 150
+  neighbor_radius: 900 # wide radius so the short smoke run exercises the channel
   capture_frequency: 1
-  communication: true
-  self_learning: false
+
+perception:
+  model: stub
+  device: cpu
+  batch_size: 64
+
+fusion:
+  tau_dedup: 0.95
+  memory_cap: 40
+
+comms:
+  enabled: true
+  k: 2
+  sender_policy: most_recent
+  drop_p: 0.25
+  delay_ticks: 0
+  quantization: int8
+  share_visitation: true
+  max_inbox_merges_per_epoch: 1
+  over_budget: drop
